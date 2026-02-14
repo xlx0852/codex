@@ -1,7 +1,7 @@
 #![cfg(not(debug_assertions))]
 
 use crate::history_cell::padded_emoji;
-use crate::i18n::localized;
+use crate::i18n::t;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::renderable::ColumnRenderable;
@@ -192,7 +192,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(Line::from(vec![
             padded_emoji("  ✨").bold().cyan(),
-            localized("发现可用更新！", "Update available!").bold(),
+            t!("update_available").bold(),
             " ".into(),
             format!(
                 "{current} -> {latest}",
@@ -204,7 +204,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(
             Line::from(vec![
-                localized("更新说明：", "Release notes: ").dim(),
+                t!("release_notes").dim(),
                 "https://github.com/openai/codex/releases/latest"
                     .dim()
                     .underlined(),
@@ -212,11 +212,7 @@ impl WidgetRef for &UpdatePromptScreen {
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );
         column.push("");
-        let update_now_label = if crate::i18n::is_chinese() {
-            format!("立即更新（执行 `{update_command}`）")
-        } else {
-            format!("Update now (runs `{update_command}`)")
-        };
+        let update_now_label = crate::i18n::format_i18n("update_now_label", &[("update_command", &update_command)]);
         column.push(selection_option_row(
             0,
             update_now_label,
@@ -224,20 +220,20 @@ impl WidgetRef for &UpdatePromptScreen {
         ));
         column.push(selection_option_row(
             1,
-            localized("跳过", "Skip").to_string(),
+            t!("update_skip").to_string(),
             self.highlighted == UpdateSelection::NotNow,
         ));
         column.push(selection_option_row(
             2,
-            localized("在下个版本前不再提醒", "Skip until next version").to_string(),
+            t!("update_skip_until_next").to_string(),
             self.highlighted == UpdateSelection::DontRemind,
         ));
         column.push("");
         column.push(
             Line::from(vec![
-                localized("按 ", "Press ").dim(),
+                t!("update_press").dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                localized(" 继续", " to continue").dim(),
+                t!("update_to_continue").dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );
