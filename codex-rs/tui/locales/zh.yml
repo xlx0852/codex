@@ -258,6 +258,14 @@ list_no_items: "无项目"
 list_create_new: "创建"
 list_default_marker: "（默认）"
 list_current_marker: "（当前）"
+
+# App
+external_editor_hint: "请保存并关闭外部编辑器后继续。"
+no_agents_available: "暂无可用智能体。"
+agents_title: "智能体"
+agents_select_thread: "选择要聚焦的线程"
+no_changes_detected: "未检测到变更。"
+failed_to_open_editor: "无法打开编辑器"
 view_all_hint: "[… %{header_height} 行] ctrl + a 查看全部"
 
 # 弹窗常量

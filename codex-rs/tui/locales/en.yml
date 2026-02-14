@@ -258,6 +258,14 @@ list_no_items: "No items"
 list_create_new: "Create"
 list_default_marker: " (default)"
 list_current_marker: " (current)"
+
+# App
+external_editor_hint: "Save and close external editor to continue."
+no_agents_available: "No agents available yet."
+agents_title: "Agents"
+agents_select_thread: "Select a thread to focus"
+no_changes_detected: "No changes detected."
+failed_to_open_editor: "Failed to open editor"
 view_all_hint: "[… %{header_height} lines] ctrl + a view all"
 
 # Popup constants
