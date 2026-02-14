@@ -58,44 +58,90 @@ pub enum SlashCommand {
 impl SlashCommand {
     /// User-visible description shown in the popup.
     pub fn description(self) -> &'static str {
-        match self {
-            SlashCommand::Feedback => "send logs to maintainers",
-            SlashCommand::New => "start a new chat during a conversation",
-            SlashCommand::Init => "create an AGENTS.md file with instructions for Codex",
-            SlashCommand::Compact => "summarize conversation to prevent hitting the context limit",
-            SlashCommand::Review => "review my current changes and find issues",
-            SlashCommand::Rename => "rename the current thread",
-            SlashCommand::Resume => "resume a saved chat",
-            SlashCommand::Fork => "fork the current chat",
-            // SlashCommand::Undo => "ask Codex to undo a turn",
-            SlashCommand::Quit | SlashCommand::Exit => "exit Codex",
-            SlashCommand::Diff => "show git diff (including untracked files)",
-            SlashCommand::Mention => "mention a file",
-            SlashCommand::Skills => "use skills to improve how Codex performs specific tasks",
-            SlashCommand::Status => "show current session configuration and token usage",
-            SlashCommand::DebugConfig => "show config layers and requirement sources for debugging",
-            SlashCommand::Statusline => "configure which items appear in the status line",
-            SlashCommand::Ps => "list background terminals",
-            SlashCommand::Clean => "stop all background terminals",
-            SlashCommand::MemoryDrop => "DO NOT USE",
-            SlashCommand::MemoryUpdate => "DO NOT USE",
-            SlashCommand::Model => "choose what model and reasoning effort to use",
-            SlashCommand::Personality => "choose a communication style for Codex",
-            SlashCommand::Plan => "switch to Plan mode",
-            SlashCommand::Collab => "change collaboration mode (experimental)",
-            SlashCommand::Agent => "switch the active agent thread",
-            SlashCommand::Approvals => "choose what Codex is allowed to do",
-            SlashCommand::Permissions => "choose what Codex is allowed to do",
-            SlashCommand::ElevateSandbox => "set up elevated agent sandbox",
-            SlashCommand::SandboxReadRoot => {
-                "let sandbox read a directory: /sandbox-add-read-dir <absolute_path>"
+        if crate::i18n::is_chinese() {
+            match self {
+                SlashCommand::Feedback => "向维护者发送日志",
+                SlashCommand::New => "在当前会话中开始新的聊天",
+                SlashCommand::Init => "创建用于指导 Codex 的 AGENTS.md 文件",
+                SlashCommand::Compact => "总结会话以避免触达上下文上限",
+                SlashCommand::Review => "审查当前改动并查找问题",
+                SlashCommand::Rename => "重命名当前线程",
+                SlashCommand::Resume => "恢复一个已保存的聊天",
+                SlashCommand::Fork => "从当前聊天分叉",
+                // SlashCommand::Undo => "让 Codex 撤销一个回合",
+                SlashCommand::Quit | SlashCommand::Exit => "退出 Codex",
+                SlashCommand::Diff => "显示 git diff（含未跟踪文件）",
+                SlashCommand::Mention => "提及一个文件",
+                SlashCommand::Skills => "使用技能提升 Codex 在特定任务上的表现",
+                SlashCommand::Status => "显示当前会话配置和 token 用量",
+                SlashCommand::DebugConfig => "显示配置层与需求来源（用于调试）",
+                SlashCommand::Statusline => "配置状态栏显示项",
+                SlashCommand::Ps => "列出后台终端",
+                SlashCommand::Clean => "停止所有后台终端",
+                SlashCommand::MemoryDrop => "请勿使用",
+                SlashCommand::MemoryUpdate => "请勿使用",
+                SlashCommand::Model => "选择模型和推理强度",
+                SlashCommand::Personality => "选择 Codex 的沟通风格",
+                SlashCommand::Plan => "切换到规划模式",
+                SlashCommand::Collab => "切换协作模式（实验）",
+                SlashCommand::Agent => "切换当前活跃代理线程",
+                SlashCommand::Approvals => "设置 Codex 可执行的操作范围",
+                SlashCommand::Permissions => "设置 Codex 可执行的操作范围",
+                SlashCommand::ElevateSandbox => "设置更高权限的代理沙箱",
+                SlashCommand::SandboxReadRoot => {
+                    "允许沙箱读取目录：/sandbox-add-read-dir <absolute_path>"
+                }
+                SlashCommand::Experimental => "切换实验功能",
+                SlashCommand::Mcp => "列出已配置的 MCP 工具",
+                SlashCommand::Apps => "管理应用",
+                SlashCommand::Logout => "退出 Codex 账号",
+                SlashCommand::Rollout => "打印 rollout 文件路径",
+                SlashCommand::TestApproval => "测试审批请求",
             }
-            SlashCommand::Experimental => "toggle experimental features",
-            SlashCommand::Mcp => "list configured MCP tools",
-            SlashCommand::Apps => "manage apps",
-            SlashCommand::Logout => "log out of Codex",
-            SlashCommand::Rollout => "print the rollout file path",
-            SlashCommand::TestApproval => "test approval request",
+        } else {
+            match self {
+                SlashCommand::Feedback => "send logs to maintainers",
+                SlashCommand::New => "start a new chat during a conversation",
+                SlashCommand::Init => "create an AGENTS.md file with instructions for Codex",
+                SlashCommand::Compact => {
+                    "summarize conversation to prevent hitting the context limit"
+                }
+                SlashCommand::Review => "review my current changes and find issues",
+                SlashCommand::Rename => "rename the current thread",
+                SlashCommand::Resume => "resume a saved chat",
+                SlashCommand::Fork => "fork the current chat",
+                // SlashCommand::Undo => "ask Codex to undo a turn",
+                SlashCommand::Quit | SlashCommand::Exit => "exit Codex",
+                SlashCommand::Diff => "show git diff (including untracked files)",
+                SlashCommand::Mention => "mention a file",
+                SlashCommand::Skills => "use skills to improve how Codex performs specific tasks",
+                SlashCommand::Status => "show current session configuration and token usage",
+                SlashCommand::DebugConfig => {
+                    "show config layers and requirement sources for debugging"
+                }
+                SlashCommand::Statusline => "configure which items appear in the status line",
+                SlashCommand::Ps => "list background terminals",
+                SlashCommand::Clean => "stop all background terminals",
+                SlashCommand::MemoryDrop => "DO NOT USE",
+                SlashCommand::MemoryUpdate => "DO NOT USE",
+                SlashCommand::Model => "choose what model and reasoning effort to use",
+                SlashCommand::Personality => "choose a communication style for Codex",
+                SlashCommand::Plan => "switch to Plan mode",
+                SlashCommand::Collab => "change collaboration mode (experimental)",
+                SlashCommand::Agent => "switch the active agent thread",
+                SlashCommand::Approvals => "choose what Codex is allowed to do",
+                SlashCommand::Permissions => "choose what Codex is allowed to do",
+                SlashCommand::ElevateSandbox => "set up elevated agent sandbox",
+                SlashCommand::SandboxReadRoot => {
+                    "let sandbox read a directory: /sandbox-add-read-dir <absolute_path>"
+                }
+                SlashCommand::Experimental => "toggle experimental features",
+                SlashCommand::Mcp => "list configured MCP tools",
+                SlashCommand::Apps => "manage apps",
+                SlashCommand::Logout => "log out of Codex",
+                SlashCommand::Rollout => "print the rollout file path",
+                SlashCommand::TestApproval => "test approval request",
+            }
         }
     }
 

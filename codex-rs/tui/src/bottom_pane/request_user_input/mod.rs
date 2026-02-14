@@ -28,6 +28,7 @@ use crate::bottom_pane::scroll_state::ScrollState;
 use crate::bottom_pane::selection_popup_common::GenericDisplayRow;
 use crate::bottom_pane::selection_popup_common::measure_rows_height;
 use crate::history_cell;
+use crate::i18n::localized;
 use crate::render::renderable::Renderable;
 
 use codex_core::protocol::Op;
@@ -37,21 +38,71 @@ use codex_protocol::request_user_input::RequestUserInputResponse;
 use codex_protocol::user_input::TextElement;
 use unicode_width::UnicodeWidthStr;
 
-const NOTES_PLACEHOLDER: &str = "Add notes";
-const ANSWER_PLACEHOLDER: &str = "Type your answer (optional)";
+const NOTES_PLACEHOLDER_EN: &str = "Add notes";
+const ANSWER_PLACEHOLDER_EN: &str = "Type your answer (optional)";
 // Keep in sync with ChatComposer's minimum composer height.
 const MIN_COMPOSER_HEIGHT: u16 = 3;
-const SELECT_OPTION_PLACEHOLDER: &str = "Select an option to add notes";
+const SELECT_OPTION_PLACEHOLDER_EN: &str = "Select an option to add notes";
 pub(super) const TIP_SEPARATOR: &str = " | ";
 pub(super) const DESIRED_SPACERS_BETWEEN_SECTIONS: u16 = 2;
-const OTHER_OPTION_LABEL: &str = "None of the above";
-const OTHER_OPTION_DESCRIPTION: &str = "Optionally, add details in notes (tab).";
-const UNANSWERED_CONFIRM_TITLE: &str = "Submit with unanswered questions?";
-const UNANSWERED_CONFIRM_GO_BACK: &str = "Go back";
-const UNANSWERED_CONFIRM_GO_BACK_DESC: &str = "Return to the first unanswered question.";
-const UNANSWERED_CONFIRM_SUBMIT: &str = "Proceed";
-const UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR: &str = "question";
-const UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL: &str = "questions";
+const OTHER_OPTION_LABEL_EN: &str = "None of the above";
+const OTHER_OPTION_DESCRIPTION_EN: &str = "Optionally, add details in notes (tab).";
+const UNANSWERED_CONFIRM_TITLE_EN: &str = "Submit with unanswered questions?";
+const UNANSWERED_CONFIRM_GO_BACK_EN: &str = "Go back";
+const UNANSWERED_CONFIRM_GO_BACK_DESC_EN: &str = "Return to the first unanswered question.";
+const UNANSWERED_CONFIRM_SUBMIT_EN: &str = "Proceed";
+const UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR_EN: &str = "question";
+const UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL_EN: &str = "questions";
+
+fn notes_placeholder_text() -> &'static str {
+    localized("添加备注", NOTES_PLACEHOLDER_EN)
+}
+
+fn answer_placeholder_text() -> &'static str {
+    localized("输入你的回答（可选）", ANSWER_PLACEHOLDER_EN)
+}
+
+fn select_option_placeholder_text() -> &'static str {
+    localized("先选择一个选项再添加备注", SELECT_OPTION_PLACEHOLDER_EN)
+}
+
+fn other_option_label() -> &'static str {
+    localized("以上都不符合", OTHER_OPTION_LABEL_EN)
+}
+
+fn other_option_description() -> &'static str {
+    localized(
+        "可选：在备注里补充细节（Tab）。",
+        OTHER_OPTION_DESCRIPTION_EN,
+    )
+}
+
+pub(super) fn unanswered_confirm_title() -> &'static str {
+    localized("要提交未回答的问题吗？", UNANSWERED_CONFIRM_TITLE_EN)
+}
+
+fn unanswered_confirm_go_back() -> &'static str {
+    localized("返回", UNANSWERED_CONFIRM_GO_BACK_EN)
+}
+
+fn unanswered_confirm_go_back_desc() -> &'static str {
+    localized(
+        "返回到第一个未回答的问题。",
+        UNANSWERED_CONFIRM_GO_BACK_DESC_EN,
+    )
+}
+
+fn unanswered_confirm_submit() -> &'static str {
+    localized("继续提交", UNANSWERED_CONFIRM_SUBMIT_EN)
+}
+
+fn unanswered_confirm_submit_desc_singular() -> &'static str {
+    localized("个问题", UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR_EN)
+}
+
+fn unanswered_confirm_submit_desc_plural() -> &'static str {
+    localized("个问题", UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL_EN)
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Focus {
@@ -149,7 +200,7 @@ impl RequestUserInputOverlay {
             has_input_focus,
             app_event_tx.clone(),
             enhanced_keys_supported,
-            ANSWER_PLACEHOLDER.to_string(),
+            answer_placeholder_text().to_string(),
             disable_paste_burst,
             ChatComposerConfig::plain_text(),
         );
@@ -299,8 +350,8 @@ impl RequestUserInputOverlay {
                     let prefix_label = format!("{prefix} {number}. ");
                     let wrap_indent = UnicodeWidthStr::width(prefix_label.as_str());
                     rows.push(GenericDisplayRow {
-                        name: format!("{prefix_label}{OTHER_OPTION_LABEL}"),
-                        description: Some(OTHER_OPTION_DESCRIPTION.to_string()),
+                        name: format!("{prefix_label}{}", other_option_label()),
+                        description: Some(other_option_description().to_string()),
                         wrap_indent: Some(wrap_indent),
                         ..Default::default()
                     });
@@ -400,11 +451,11 @@ impl RequestUserInputOverlay {
 
     fn notes_placeholder(&self) -> &'static str {
         if self.has_options() && self.selected_option_index().is_none() {
-            SELECT_OPTION_PLACEHOLDER
+            select_option_placeholder_text()
         } else if self.has_options() {
-            NOTES_PLACEHOLDER
+            notes_placeholder_text()
         } else {
-            ANSWER_PLACEHOLDER
+            answer_placeholder_text()
         }
     }
 
@@ -431,32 +482,44 @@ impl RequestUserInputOverlay {
         let notes_visible = self.notes_ui_visible();
         if self.has_options() {
             if self.selected_option_index().is_some() && !notes_visible {
-                tips.push(FooterTip::highlighted("tab to add notes"));
+                tips.push(FooterTip::highlighted(localized(
+                    "Tab 添加备注",
+                    "tab to add notes",
+                )));
             }
             if self.selected_option_index().is_some() && notes_visible {
-                tips.push(FooterTip::new("tab or esc to clear notes"));
+                tips.push(FooterTip::new(localized(
+                    "Tab 或 Esc 清空备注",
+                    "tab or esc to clear notes",
+                )));
             }
         }
 
         let question_count = self.question_count();
         let is_last_question = self.current_index().saturating_add(1) >= question_count;
         let enter_tip = if question_count == 1 {
-            FooterTip::highlighted("enter to submit answer")
+            FooterTip::highlighted(localized("Enter 提交答案", "enter to submit answer"))
         } else if is_last_question {
-            FooterTip::highlighted("enter to submit all")
+            FooterTip::highlighted(localized("Enter 提交全部", "enter to submit all"))
         } else {
-            FooterTip::new("enter to submit answer")
+            FooterTip::new(localized("Enter 提交答案", "enter to submit answer"))
         };
         tips.push(enter_tip);
         if question_count > 1 {
             if self.has_options() && !self.focus_is_notes() {
-                tips.push(FooterTip::new("←/→ to navigate questions"));
+                tips.push(FooterTip::new(localized(
+                    "←/→ 切换问题",
+                    "←/→ to navigate questions",
+                )));
             } else if !self.has_options() {
-                tips.push(FooterTip::new("ctrl + p / ctrl + n change question"));
+                tips.push(FooterTip::new(localized(
+                    "Ctrl + P / Ctrl + N 切换问题",
+                    "ctrl + p / ctrl + n change question",
+                )));
             }
         }
         if !(self.has_options() && notes_visible) {
-            tips.push(FooterTip::new("esc to interrupt"));
+            tips.push(FooterTip::new(localized("Esc 中断", "esc to interrupt")));
         }
         tips
     }
@@ -607,7 +670,7 @@ impl RequestUserInputOverlay {
             return options.get(idx).map(|opt| opt.label.clone());
         }
         if idx == options.len() && Self::other_option_enabled_for_question(question) {
-            return Some(OTHER_OPTION_LABEL.to_string());
+            return Some(other_option_label().to_string());
         }
         None
     }
@@ -786,11 +849,15 @@ impl RequestUserInputOverlay {
     fn unanswered_submit_description(&self) -> String {
         let count = self.unanswered_question_count();
         let suffix = if count == 1 {
-            UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR
+            unanswered_confirm_submit_desc_singular()
         } else {
-            UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL
+            unanswered_confirm_submit_desc_plural()
         };
-        format!("Submit with {count} unanswered {suffix}.")
+        if crate::i18n::is_chinese() {
+            format!("仍有 {count} 个未回答{suffix}，确认提交。")
+        } else {
+            format!("Submit with {count} unanswered {suffix}.")
+        }
     }
 
     fn first_unanswered_index(&self) -> Option<usize> {
@@ -811,12 +878,12 @@ impl RequestUserInputOverlay {
             .unwrap_or(0);
         let entries = [
             (
-                UNANSWERED_CONFIRM_SUBMIT,
+                unanswered_confirm_submit(),
                 self.unanswered_submit_description(),
             ),
             (
-                UNANSWERED_CONFIRM_GO_BACK,
-                UNANSWERED_CONFIRM_GO_BACK_DESC.to_string(),
+                unanswered_confirm_go_back(),
+                unanswered_confirm_go_back_desc().to_string(),
             ),
         ];
         entries
@@ -2355,7 +2422,7 @@ mod tests {
         assert_eq!(other_row.name, "  4. None of the above");
         assert_eq!(
             other_row.description.as_deref(),
-            Some(OTHER_OPTION_DESCRIPTION)
+            Some(OTHER_OPTION_DESCRIPTION_EN)
         );
 
         let other_idx = overlay.options_len().saturating_sub(1);
@@ -2383,7 +2450,7 @@ mod tests {
         assert_eq!(
             answer.answers,
             vec![
-                OTHER_OPTION_LABEL.to_string(),
+                OTHER_OPTION_LABEL_EN.to_string(),
                 "user_note: Custom answer".to_string(),
             ]
         );

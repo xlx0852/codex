@@ -1,0 +1,51 @@
+# 欢迎界面
+welcome_title: "欢迎使用 "
+welcome_subtitle: "，OpenAI 的命令行编程助手"
+
+# 信任目录界面
+trust_directory_title: "信任此目录？"
+trust_directory_you_are_in: "你当前位于 "
+trust_directory_description: "Codex 将在此目录中执行命令。仅当您信任此代码时才继续。"
+trust_yes_continue: "是，继续"
+trust_no_quit: "否，退出"
+trust_press_to_continue: " 继续"
+trust_press_to_continue_create_sandbox: " 继续并创建沙箱..."
+
+# 登录界面
+auth_sign_in: "登录"
+auth_sign_in_description: "使用一次性代码从其他设备登录"
+auth_loading: "加载中..."
+auth_error: "错误"
+
+# 底部快捷键提示
+footer_for_commands: " 查看命令"
+footer_for_shell_commands: " 查看 shell 命令"
+footer_for_newline: " 换行"
+footer_to_queue_message: " 排队消息"
+footer_for_file_paths: " 选择文件路径"
+footer_to_paste_images: " 粘贴图片"
+footer_to_edit_in_external_editor: " 在外部编辑器中编辑"
+footer_to_edit_previous_message: " 编辑上一条消息"
+footer_to_exit: " 退出"
+footer_to_view_transcript: " 查看对话记录"
+footer_to_change_mode: " 切换模式"
+footer_for_shortcuts: " 查看快捷键"
+footer_again_to_quit: " 再次按下退出"
+footer_again_to_edit_previous: " 再次按下编辑上一条消息"
+footer_shift_tab_to_cycle: "shift+tab 切换"
+
+# 模式指示器
+mode_plan: "规划模式"
+mode_pair_programming: "结对编程模式"
+mode_execute: "执行模式"
+
+# 上下文窗口
+context_percent_left: "% 上下文剩余"
+context_used: "已使用"
+
+# 工具提示
+tooltip_paid_mac: "*新功能* 尝试 **Codex 应用**，享受 2 倍速率限制，有效期至 *4月2日*。运行 'codex app' 或访问 https://chatgpt.com/codex?app-landing-page=true"
+tooltip_paid_non_mac: "*新功能* 2 倍速率限制，有效期至 *4月2日*。"
+tooltip_other_mac: "*新功能* 使用 **Codex 应用** 更快构建。运行 'codex app' 或访问 https://chatgpt.com/codex?app-landing-page=true"
+tooltip_other_non_mac: "*新功能* 使用 Codex 更快构建。"
+tooltip_free_go: "*新功能* Codex 在您的计划中免费使用，有效期至 *3月2日* – 让我们一起构建吧。"

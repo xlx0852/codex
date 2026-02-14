@@ -20,6 +20,7 @@ use crate::history_cell;
 use crate::history_cell::HistoryCell;
 #[cfg(not(debug_assertions))]
 use crate::history_cell::UpdateAvailableHistoryCell;
+use crate::i18n::localized;
 use crate::model_migration::ModelMigrationOutcome;
 use crate::model_migration::migration_copy_for_models;
 use crate::model_migration::run_model_migration_prompt;
@@ -99,13 +100,19 @@ use tokio::sync::mpsc::error::TrySendError;
 use tokio::sync::mpsc::unbounded_channel;
 use toml::Value as TomlValue;
 
-const EXTERNAL_EDITOR_HINT: &str = "Save and close external editor to continue.";
 const THREAD_EVENT_CHANNEL_CAPACITY: usize = 32768;
 /// Baseline cadence for periodic stream commit animation ticks.
 ///
 /// Smooth-mode streaming drains one line per tick, so this interval controls
 /// perceived typing speed for non-backlogged output.
 const COMMIT_ANIMATION_TICK: Duration = tui::TARGET_FRAME_INTERVAL;
+
+fn external_editor_hint() -> &'static str {
+    localized(
+        "请保存并关闭外部编辑器后继续。",
+        "Save and close external editor to continue.",
+    )
+}
 
 #[derive(Debug, Clone)]
 pub struct AppExitInfo {
@@ -815,8 +822,10 @@ impl App {
         }
 
         if self.thread_event_channels.is_empty() {
-            self.chat_widget
-                .add_info_message("No agents available yet.".to_string(), None);
+            self.chat_widget.add_info_message(
+                localized("暂无可用智能体。", "No agents available yet.").to_string(),
+                None,
+            );
             return;
         }
 
@@ -846,8 +855,8 @@ impl App {
             .collect();
 
         self.chat_widget.show_selection_view(SelectionViewParams {
-            title: Some("Agents".to_string()),
-            subtitle: Some("Select a thread to focus".to_string()),
+            title: Some(localized("智能体", "Agents").to_string()),
+            subtitle: Some(localized("选择要聚焦的线程", "Select a thread to focus").to_string()),
             footer_hint: Some(standard_popup_hint_line()),
             items,
             initial_selected_idx,
@@ -1642,7 +1651,11 @@ impl App {
                 // Enter alternate screen using TUI helper and build pager lines
                 let _ = tui.enter_alt_screen();
                 let pager_lines: Vec<ratatui::text::Line<'static>> = if text.trim().is_empty() {
-                    vec!["No changes detected.".italic().into()]
+                    vec![
+                        localized("未检测到变更。", "No changes detected.")
+                            .italic()
+                            .into(),
+                    ]
                 } else {
                     text.lines().map(ansi_escape_line).collect()
                 };
@@ -2702,7 +2715,8 @@ impl App {
             Err(err) => {
                 self.chat_widget
                     .add_to_history(history_cell::new_error_event(format!(
-                        "Failed to open editor: {err}",
+                        "{}: {err}",
+                        localized("无法打开编辑器", "Failed to open editor")
                     )));
                 self.reset_external_editor_state(tui);
                 return;
@@ -2726,7 +2740,8 @@ impl App {
             Err(err) => {
                 self.chat_widget
                     .add_to_history(history_cell::new_error_event(format!(
-                        "Failed to open editor: {err}",
+                        "{}: {err}",
+                        localized("无法打开编辑器", "Failed to open editor")
                     )));
             }
         }
@@ -2737,7 +2752,7 @@ impl App {
         self.chat_widget
             .set_external_editor_state(ExternalEditorState::Requested);
         self.chat_widget.set_footer_hint_override(Some(vec![(
-            EXTERNAL_EDITOR_HINT.to_string(),
+            external_editor_hint().to_string(),
             String::new(),
         )]));
         tui.frame_requester().schedule_frame();

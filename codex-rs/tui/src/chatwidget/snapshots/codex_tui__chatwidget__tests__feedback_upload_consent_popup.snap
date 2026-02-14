@@ -9,6 +9,7 @@ expression: popup
 
 › 1. Yes  Share the current Codex session logs with the team for
           troubleshooting.
-  2. No
+  2. No   Continue without sharing logs. You can still include an optional
+          note.
 
   Press enter to confirm or esc to go back

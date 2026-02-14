@@ -20,6 +20,7 @@ use super::selection_popup_common::measure_rows_height;
 use super::selection_popup_common::render_rows;
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
+use crate::i18n::localized;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::RectExt as _;
@@ -87,19 +88,27 @@ impl AppLinkView {
             AppLinkScreen::Link => {
                 if self.is_installed {
                     vec![
-                        "Manage on ChatGPT",
+                        localized("在 ChatGPT 中管理", "Manage on ChatGPT"),
                         if self.is_enabled {
-                            "Disable app"
+                            localized("禁用应用", "Disable app")
                         } else {
-                            "Enable app"
+                            localized("启用应用", "Enable app")
                         },
-                        "Back",
+                        localized("返回", "Back"),
                     ]
                 } else {
-                    vec!["Install on ChatGPT", "Back"]
+                    vec![
+                        localized("在 ChatGPT 中安装", "Install on ChatGPT"),
+                        localized("返回", "Back"),
+                    ]
                 }
             }
-            AppLinkScreen::InstallConfirmation => vec!["I already Installed it", "Back"],
+            AppLinkScreen::InstallConfirmation => {
+                vec![
+                    localized("我已经安装好了", "I already Installed it"),
+                    localized("返回", "Back"),
+                ]
+            }
         }
     }
 
@@ -180,7 +189,13 @@ impl AppLinkView {
 
         lines.push(Line::from(""));
         if self.is_installed {
-            for line in wrap("Use $ to insert this app into the prompt.", usable_width) {
+            for line in wrap(
+                localized(
+                    "输入 $ 可将此应用插入到提示词中。",
+                    "Use $ to insert this app into the prompt.",
+                ),
+                usable_width,
+            ) {
                 lines.push(Line::from(line.into_owned()));
             }
             lines.push(Line::from(""));
@@ -192,14 +207,20 @@ impl AppLinkView {
                 lines.push(Line::from(line.into_owned()));
             }
             for line in wrap(
-                "Newly installed apps can take a few minutes to appear in /apps.",
+                localized(
+                    "新安装的应用可能需要几分钟才会出现在 /apps 中。",
+                    "Newly installed apps can take a few minutes to appear in /apps.",
+                ),
                 usable_width,
             ) {
                 lines.push(Line::from(line.into_owned()));
             }
             if !self.is_installed {
                 for line in wrap(
-                    "After installed, use $ to insert this app into the prompt.",
+                    localized(
+                        "安装后可使用 $ 将此应用插入到提示词中。",
+                        "After installed, use $ to insert this app into the prompt.",
+                    ),
                     usable_width,
                 ) {
                     lines.push(Line::from(line.into_owned()));
@@ -215,24 +236,34 @@ impl AppLinkView {
         let usable_width = width.max(1) as usize;
         let mut lines: Vec<Line<'static>> = Vec::new();
 
-        lines.push(Line::from("Finish App Setup".bold()));
+        lines.push(Line::from(
+            localized("完成应用设置", "Finish App Setup").bold(),
+        ));
         lines.push(Line::from(""));
 
         for line in wrap(
-            "Complete app setup on ChatGPT in the browser window that just opened.",
+            localized(
+                "请在刚刚打开的浏览器窗口中完成 ChatGPT 里的应用设置。",
+                "Complete app setup on ChatGPT in the browser window that just opened.",
+            ),
             usable_width,
         ) {
             lines.push(Line::from(line.into_owned()));
         }
         for line in wrap(
-            "Sign in there if needed, then return here and select \"I already Installed it\".",
+            localized(
+                "如有需要请先登录，然后返回这里选择“我已经安装好了”。",
+                "Sign in there if needed, then return here and select \"I already Installed it\".",
+            ),
             usable_width,
         ) {
             lines.push(Line::from(line.into_owned()));
         }
 
         lines.push(Line::from(""));
-        lines.push(Line::from(vec!["Setup URL:".dim()]));
+        lines.push(Line::from(vec![
+            localized("设置链接：", "Setup URL:").dim(),
+        ]));
         let url_line = Line::from(vec![self.url.clone().cyan().underlined()]);
         lines.extend(word_wrap_lines(vec![url_line], usable_width));
 
@@ -270,18 +301,23 @@ impl AppLinkView {
     }
 
     fn hint_line(&self) -> Line<'static> {
+        let (use_text, move_text, select_text, close_text) = if crate::i18n::is_chinese() {
+            ("使用 ", " 移动，", " 选择，", " 关闭")
+        } else {
+            ("Use ", " to move, ", " to select, ", " to close")
+        };
         Line::from(vec![
-            "Use ".into(),
+            use_text.into(),
             key_hint::plain(KeyCode::Tab).into(),
             " / ".into(),
             key_hint::plain(KeyCode::Up).into(),
             " ".into(),
             key_hint::plain(KeyCode::Down).into(),
-            " to move, ".into(),
+            move_text.into(),
             key_hint::plain(KeyCode::Enter).into(),
-            " to select, ".into(),
+            select_text.into(),
             key_hint::plain(KeyCode::Esc).into(),
-            " to close".into(),
+            close_text.into(),
         ])
     }
 }
@@ -415,7 +451,7 @@ impl crate::render::renderable::Renderable for AppLinkView {
                 &action_rows,
                 &action_state,
                 action_rows.len().max(1),
-                "No actions",
+                localized("无可用操作", "No actions"),
             );
         }
 

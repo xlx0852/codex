@@ -1,0 +1,51 @@
+# Welcome screen
+welcome_title: "Welcome to "
+welcome_subtitle: ", OpenAI's command-line coding agent"
+
+# Trust directory screen
+trust_directory_title: "Trust this directory?"
+trust_directory_you_are_in: "You are in "
+trust_directory_description: "Codex will execute commands in this directory. Only proceed if you trust the code."
+trust_yes_continue: "Yes, continue"
+trust_no_quit: "No, quit"
+trust_press_to_continue: " to continue"
+trust_press_to_continue_create_sandbox: " to continue and create a sandbox..."
+
+# Auth screen
+auth_sign_in: "Sign in"
+auth_sign_in_description: "Sign in from another device with a one-time code"
+auth_loading: "Loading..."
+auth_error: "Error"
+
+# Footer shortcuts
+footer_for_commands: " for commands"
+footer_for_shell_commands: " for shell commands"
+footer_for_newline: " for newline"
+footer_to_queue_message: " to queue message"
+footer_for_file_paths: " for file paths"
+footer_to_paste_images: " to paste images"
+footer_to_edit_in_external_editor: " to edit in external editor"
+footer_to_edit_previous_message: " to edit previous message"
+footer_to_exit: " to exit"
+footer_to_view_transcript: " to view transcript"
+footer_to_change_mode: " to change mode"
+footer_for_shortcuts: " for shortcuts"
+footer_again_to_quit: " again to quit"
+footer_again_to_edit_previous: " again to edit previous message"
+footer_shift_tab_to_cycle: "shift+tab to cycle"
+
+# Mode indicators
+mode_plan: "Plan mode"
+mode_pair_programming: "Pair Programming mode"
+mode_execute: "Execute mode"
+
+# Context window
+context_percent_left: "% context left"
+context_used: "used"
+
+# Tooltips
+tooltip_paid_mac: "*New* Try the **Codex App** with 2x rate limits until *April 2nd*. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true"
+tooltip_paid_non_mac: "*New* 2x rate limits until *April 2nd*."
+tooltip_other_mac: "*New* Build faster with the **Codex App**. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true"
+tooltip_other_non_mac: "*New* Build faster with Codex."
+tooltip_free_go: "*New* Codex is included in your plan for free through *March 2nd* – let's build together."

@@ -1,4 +1,5 @@
 use crate::exec_command::relativize_to_home;
+use crate::i18n::localized;
 use crate::text_formatting;
 use chrono::DateTime;
 use chrono::Local;
@@ -12,6 +13,26 @@ use unicode_width::UnicodeWidthStr;
 
 use super::account::StatusAccountDisplay;
 
+fn localized_status_value(value: &str) -> String {
+    let normalized = value.trim().to_ascii_lowercase();
+    if !crate::i18n::is_chinese() {
+        return normalized;
+    }
+
+    match normalized.as_str() {
+        "none" | "off" => "关闭".to_string(),
+        "auto" => "自动".to_string(),
+        "concise" => "简洁".to_string(),
+        "detailed" => "详细".to_string(),
+        "minimal" => "最小".to_string(),
+        "low" => "低".to_string(),
+        "medium" => "中".to_string(),
+        "high" => "高".to_string(),
+        "extra high" | "extra_high" => "极高".to_string(),
+        _ => normalized,
+    }
+}
+
 fn normalize_agents_display_path(path: &Path) -> String {
     dunce::simplified(path).display().to_string()
 }
@@ -22,14 +43,22 @@ pub(crate) fn compose_model_display(
 ) -> (String, Vec<String>) {
     let mut details: Vec<String> = Vec::new();
     if let Some((_, effort)) = entries.iter().find(|(k, _)| *k == "reasoning effort") {
-        details.push(format!("reasoning {}", effort.to_ascii_lowercase()));
+        details.push(format!(
+            "{} {}",
+            localized("推理", "reasoning"),
+            localized_status_value(effort)
+        ));
     }
     if let Some((_, summary)) = entries.iter().find(|(k, _)| *k == "reasoning summaries") {
         let summary = summary.trim();
         if summary.eq_ignore_ascii_case("none") || summary.eq_ignore_ascii_case("off") {
-            details.push("summaries off".to_string());
+            details.push(localized("摘要关闭", "summaries off").to_string());
         } else if !summary.is_empty() {
-            details.push(format!("summaries {}", summary.to_ascii_lowercase()));
+            details.push(format!(
+                "{} {}",
+                localized("摘要", "summaries"),
+                localized_status_value(summary)
+            ));
         }
     }
 
@@ -44,7 +73,7 @@ pub(crate) fn compose_agents_summary(config: &Config) -> String {
                 let file_name = p
                     .file_name()
                     .map(|name| name.to_string_lossy().to_string())
-                    .unwrap_or_else(|| "<unknown>".to_string());
+                    .unwrap_or_else(|| localized("<未知>", "<unknown>").to_string());
                 let display = if let Some(parent) = p.parent() {
                     if parent == config.cwd {
                         file_name.clone()
@@ -75,12 +104,12 @@ pub(crate) fn compose_agents_summary(config: &Config) -> String {
                 rels.push(display);
             }
             if rels.is_empty() {
-                "<none>".to_string()
+                localized("<无>", "<none>").to_string()
             } else {
                 rels.join(", ")
             }
         }
-        Err(_) => "<none>".to_string(),
+        Err(_) => localized("<无>", "<none>").to_string(),
     }
 }
 
@@ -96,7 +125,7 @@ pub(crate) fn compose_account_display(
             let email = auth.get_account_email();
             let plan = plan
                 .map(|plan_type| title_case(format!("{plan_type:?}").as_str()))
-                .or_else(|| Some("Unknown".to_string()));
+                .or_else(|| Some(localized("未知", "Unknown").to_string()));
             Some(StatusAccountDisplay::ChatGpt { email, plan })
         }
     }
@@ -170,6 +199,8 @@ pub(crate) fn format_reset_timestamp(dt: DateTime<Local>, captured_at: DateTime<
     let time = dt.format("%H:%M").to_string();
     if dt.date_naive() == captured_at.date_naive() {
         time
+    } else if crate::i18n::is_chinese() {
+        format!("{time}（{}）", dt.format("%-m月%-d日"))
     } else {
         format!("{time} on {}", dt.format("%-d %b"))
     }

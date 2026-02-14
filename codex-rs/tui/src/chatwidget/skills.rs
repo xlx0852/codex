@@ -10,6 +10,7 @@ use crate::bottom_pane::SelectionViewParams;
 use crate::bottom_pane::SkillsToggleItem;
 use crate::bottom_pane::SkillsToggleView;
 use crate::bottom_pane::popup_consts::standard_popup_hint_line;
+use crate::i18n::localized;
 use crate::skills_helpers::skill_description;
 use crate::skills_helpers::skill_display_name;
 use codex_chatgpt::connectors::AppInfo;
@@ -30,8 +31,14 @@ impl ChatWidget {
     pub(crate) fn open_skills_menu(&mut self) {
         let items = vec![
             SelectionItem {
-                name: "List skills".to_string(),
-                description: Some("Tip: press $ to open this list directly.".to_string()),
+                name: localized("查看技能列表", "List skills").to_string(),
+                description: Some(
+                    localized(
+                        "提示：按 $ 可直接打开此列表。",
+                        "Tip: press $ to open this list directly.",
+                    )
+                    .to_string(),
+                ),
                 actions: vec![Box::new(|tx| {
                     tx.send(AppEvent::OpenSkillsList);
                 })],
@@ -39,8 +46,10 @@ impl ChatWidget {
                 ..Default::default()
             },
             SelectionItem {
-                name: "Enable/Disable Skills".to_string(),
-                description: Some("Enable or disable skills.".to_string()),
+                name: localized("启用/禁用技能", "Enable/Disable Skills").to_string(),
+                description: Some(
+                    localized("启用或禁用技能。", "Enable or disable skills.").to_string(),
+                ),
                 actions: vec![Box::new(|tx| {
                     tx.send(AppEvent::OpenManageSkillsPopup);
                 })],
@@ -50,8 +59,8 @@ impl ChatWidget {
         ];
 
         self.bottom_pane.show_selection_view(SelectionViewParams {
-            title: Some("Skills".to_string()),
-            subtitle: Some("Choose an action".to_string()),
+            title: Some(localized("技能", "Skills").to_string()),
+            subtitle: Some(localized("请选择操作", "Choose an action").to_string()),
             footer_hint: Some(standard_popup_hint_line()),
             items,
             ..Default::default()
@@ -60,7 +69,10 @@ impl ChatWidget {
 
     pub(crate) fn open_manage_skills_popup(&mut self) {
         if self.skills_all.is_empty() {
-            self.add_info_message("No skills available.".to_string(), None);
+            self.add_info_message(
+                localized("当前没有可用技能。", "No skills available.").to_string(),
+                None,
+            );
             return;
         }
 
@@ -131,7 +143,11 @@ impl ChatWidget {
             return;
         }
         self.add_info_message(
-            format!("{enabled_count} skills enabled, {disabled_count} skills disabled"),
+            if crate::i18n::is_chinese() {
+                format!("已启用 {enabled_count} 个技能，已禁用 {disabled_count} 个技能")
+            } else {
+                format!("{enabled_count} skills enabled, {disabled_count} skills disabled")
+            },
             None,
         );
     }

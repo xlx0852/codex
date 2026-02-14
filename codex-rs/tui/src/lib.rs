@@ -3,6 +3,13 @@
 // alternate‑screen mode starts; that file opts‑out locally via `allow`.
 #![deny(clippy::print_stdout, clippy::print_stderr)]
 #![deny(clippy::disallowed_methods)]
+
+// Initialize i18n for the crate
+rust_i18n::i18n!("locales", fallback = "en");
+
+// Re-export the t! macro for use throughout the crate
+pub use rust_i18n::t;
+
 use additional_dirs::add_dir_warning_message;
 use app::App;
 pub use app::AppExitInfo;
@@ -78,6 +85,7 @@ mod file_search;
 mod frames;
 mod get_git_diff;
 mod history_cell;
+pub mod i18n;
 pub mod insert_history;
 mod key_hint;
 pub mod live_wrap;
@@ -130,6 +138,8 @@ pub async fn run_main(
     mut cli: Cli,
     codex_linux_sandbox_exe: Option<PathBuf>,
 ) -> std::io::Result<AppExitInfo> {
+    // Initialize i18n support
+    i18n::init();
     let (sandbox_mode, approval_policy) = if cli.full_auto {
         (
             Some(SandboxMode::WorkspaceWrite),

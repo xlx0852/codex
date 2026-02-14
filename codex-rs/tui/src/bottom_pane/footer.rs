@@ -81,23 +81,105 @@ pub(crate) enum CollaborationModeIndicator {
     Execute,
 }
 
-const MODE_CYCLE_HINT: &str = "shift+tab to cycle";
 const FOOTER_CONTEXT_GAP_COLS: u16 = 1;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum FooterTextKey {
+    FooterForCommands,
+    FooterForShellCommands,
+    FooterForNewline,
+    FooterToQueueMessage,
+    FooterToQueue,
+    FooterForFilePaths,
+    FooterToPasteImages,
+    FooterToEditInExternalEditor,
+    FooterToEditPreviousMessage,
+    FooterToExit,
+    FooterToViewTranscript,
+    FooterToChangeMode,
+    FooterForShortcuts,
+    FooterAgainToQuit,
+    FooterAgainToEditPrevious,
+    FooterShiftTabToCycle,
+    ModePlan,
+    ModePairProgramming,
+    ModeExecute,
+    ContextPercentLeft,
+    ContextUsed,
+}
+
+fn footer_text_for_language(key: FooterTextKey, is_chinese: bool) -> &'static str {
+    if is_chinese {
+        match key {
+            FooterTextKey::FooterForCommands => " 查看命令",
+            FooterTextKey::FooterForShellCommands => " 查看 shell 命令",
+            FooterTextKey::FooterForNewline => " 换行",
+            FooterTextKey::FooterToQueueMessage => " 排队消息",
+            FooterTextKey::FooterToQueue => " 排队",
+            FooterTextKey::FooterForFilePaths => " 选择文件路径",
+            FooterTextKey::FooterToPasteImages => " 粘贴图片",
+            FooterTextKey::FooterToEditInExternalEditor => " 在外部编辑器中编辑",
+            FooterTextKey::FooterToEditPreviousMessage => " 编辑上一条消息",
+            FooterTextKey::FooterToExit => " 退出",
+            FooterTextKey::FooterToViewTranscript => " 查看对话记录",
+            FooterTextKey::FooterToChangeMode => " 切换模式",
+            FooterTextKey::FooterForShortcuts => " 查看快捷键",
+            FooterTextKey::FooterAgainToQuit => " 再次按下退出",
+            FooterTextKey::FooterAgainToEditPrevious => " 再次按下编辑上一条消息",
+            FooterTextKey::FooterShiftTabToCycle => "shift+tab 切换",
+            FooterTextKey::ModePlan => "规划模式",
+            FooterTextKey::ModePairProgramming => "结对编程模式",
+            FooterTextKey::ModeExecute => "执行模式",
+            FooterTextKey::ContextPercentLeft => "% 上下文剩余",
+            FooterTextKey::ContextUsed => "已使用",
+        }
+    } else {
+        match key {
+            FooterTextKey::FooterForCommands => " for commands",
+            FooterTextKey::FooterForShellCommands => " for shell commands",
+            FooterTextKey::FooterForNewline => " for newline",
+            FooterTextKey::FooterToQueueMessage => " to queue message",
+            FooterTextKey::FooterToQueue => " to queue",
+            FooterTextKey::FooterForFilePaths => " for file paths",
+            FooterTextKey::FooterToPasteImages => " to paste images",
+            FooterTextKey::FooterToEditInExternalEditor => " to edit in external editor",
+            FooterTextKey::FooterToEditPreviousMessage => " to edit previous message",
+            FooterTextKey::FooterToExit => " to exit",
+            FooterTextKey::FooterToViewTranscript => " to view transcript",
+            FooterTextKey::FooterToChangeMode => " to change mode",
+            FooterTextKey::FooterForShortcuts => " for shortcuts",
+            FooterTextKey::FooterAgainToQuit => " again to quit",
+            FooterTextKey::FooterAgainToEditPrevious => " again to edit previous message",
+            FooterTextKey::FooterShiftTabToCycle => "shift+tab to cycle",
+            FooterTextKey::ModePlan => "Plan mode",
+            FooterTextKey::ModePairProgramming => "Pair Programming mode",
+            FooterTextKey::ModeExecute => "Execute mode",
+            FooterTextKey::ContextPercentLeft => "% context left",
+            FooterTextKey::ContextUsed => "used",
+        }
+    }
+}
+
+fn footer_text(key: FooterTextKey) -> String {
+    footer_text_for_language(key, crate::i18n::is_chinese()).to_string()
+}
 
 impl CollaborationModeIndicator {
     fn label(self, show_cycle_hint: bool) -> String {
         let suffix = if show_cycle_hint {
-            format!(" ({MODE_CYCLE_HINT})")
+            let shift_tab_to_cycle = footer_text(FooterTextKey::FooterShiftTabToCycle);
+            format!(" ({shift_tab_to_cycle})")
         } else {
             String::new()
         };
-        match self {
-            CollaborationModeIndicator::Plan => format!("Plan mode{suffix}"),
+        let mode = match self {
+            CollaborationModeIndicator::Plan => footer_text(FooterTextKey::ModePlan),
             CollaborationModeIndicator::PairProgramming => {
-                format!("Pair Programming mode{suffix}")
+                footer_text(FooterTextKey::ModePairProgramming)
             }
-            CollaborationModeIndicator::Execute => format!("Execute mode{suffix}"),
-        }
+            CollaborationModeIndicator::Execute => footer_text(FooterTextKey::ModeExecute),
+        };
+        format!("{mode}{suffix}")
     }
 
     fn styled_span(self, show_cycle_hint: bool) -> Span<'static> {
@@ -256,15 +338,15 @@ fn left_side_line(
         SummaryHintKind::None => {}
         SummaryHintKind::Shortcuts => {
             line.push_span(key_hint::plain(KeyCode::Char('?')));
-            line.push_span(" for shortcuts".dim());
+            line.push_span(footer_text(FooterTextKey::FooterForShortcuts).dim());
         }
         SummaryHintKind::QueueMessage => {
             line.push_span(key_hint::plain(KeyCode::Tab));
-            line.push_span(" to queue message".dim());
+            line.push_span(footer_text(FooterTextKey::FooterToQueueMessage).dim());
         }
         SummaryHintKind::QueueShort => {
             line.push_span(key_hint::plain(KeyCode::Tab));
-            line.push_span(" to queue".dim());
+            line.push_span(footer_text(FooterTextKey::FooterToQueue).dim());
         }
     };
 
@@ -660,19 +742,27 @@ struct ShortcutsState {
 }
 
 fn quit_shortcut_reminder_line(key: KeyBinding) -> Line<'static> {
-    Line::from(vec![key.into(), " again to quit".into()]).dim()
+    Line::from(vec![
+        key.into(),
+        footer_text(FooterTextKey::FooterAgainToQuit).into(),
+    ])
+    .dim()
 }
 
 fn esc_hint_line(esc_backtrack_hint: bool) -> Line<'static> {
     let esc = key_hint::plain(KeyCode::Esc);
     if esc_backtrack_hint {
-        Line::from(vec![esc.into(), " again to edit previous message".into()]).dim()
+        Line::from(vec![
+            esc.into(),
+            footer_text(FooterTextKey::FooterAgainToEditPrevious).into(),
+        ])
+        .dim()
     } else {
         Line::from(vec![
             esc.into(),
             " ".into(),
             esc.into(),
-            " to edit previous message".into(),
+            footer_text(FooterTextKey::FooterToEditPreviousMessage).into(),
         ])
         .dim()
     }
@@ -779,15 +869,20 @@ fn build_columns(entries: Vec<Line<'static>>) -> Vec<Line<'static>> {
 pub(crate) fn context_window_line(percent: Option<i64>, used_tokens: Option<i64>) -> Line<'static> {
     if let Some(percent) = percent {
         let percent = percent.clamp(0, 100);
-        return Line::from(vec![Span::from(format!("{percent}% context left")).dim()]);
+        let context_percent_left = footer_text(FooterTextKey::ContextPercentLeft);
+        return Line::from(vec![
+            Span::from(format!("{percent}{context_percent_left}")).dim(),
+        ]);
     }
 
     if let Some(tokens) = used_tokens {
         let used_fmt = format_tokens_compact(tokens);
-        return Line::from(vec![Span::from(format!("{used_fmt} used")).dim()]);
+        let context_used = footer_text(FooterTextKey::ContextUsed);
+        return Line::from(vec![Span::from(format!("{used_fmt} {context_used}")).dim()]);
     }
 
-    Line::from(vec![Span::from("100% context left").dim()])
+    let context_percent_left = footer_text(FooterTextKey::ContextPercentLeft);
+    Line::from(vec![Span::from(format!("100{context_percent_left}")).dim()])
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -842,7 +937,7 @@ struct ShortcutDescriptor {
     id: ShortcutId,
     bindings: &'static [ShortcutBinding],
     prefix: &'static str,
-    label: &'static str,
+    label_key: Option<FooterTextKey>,
 }
 
 impl ShortcutDescriptor {
@@ -856,16 +951,20 @@ impl ShortcutDescriptor {
         match self.id {
             ShortcutId::EditPrevious => {
                 if state.esc_backtrack_hint {
-                    line.push_span(" again to edit previous message");
+                    line.push_span(footer_text(FooterTextKey::FooterAgainToEditPrevious));
                 } else {
                     line.extend(vec![
                         " ".into(),
                         key_hint::plain(KeyCode::Esc).into(),
-                        " to edit previous message".into(),
+                        footer_text(FooterTextKey::FooterToEditPreviousMessage).into(),
                     ]);
                 }
             }
-            _ => line.push_span(self.label),
+            _ => {
+                if let Some(label_key) = self.label_key {
+                    line.push_span(footer_text(label_key));
+                }
+            }
         };
         Some(line)
     }
@@ -879,7 +978,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " for commands",
+        label_key: Some(FooterTextKey::FooterForCommands),
     },
     ShortcutDescriptor {
         id: ShortcutId::ShellCommands,
@@ -888,7 +987,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " for shell commands",
+        label_key: Some(FooterTextKey::FooterForShellCommands),
     },
     ShortcutDescriptor {
         id: ShortcutId::InsertNewline,
@@ -903,7 +1002,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             },
         ],
         prefix: "",
-        label: " for newline",
+        label_key: Some(FooterTextKey::FooterForNewline),
     },
     ShortcutDescriptor {
         id: ShortcutId::QueueMessageTab,
@@ -912,7 +1011,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " to queue message",
+        label_key: Some(FooterTextKey::FooterToQueueMessage),
     },
     ShortcutDescriptor {
         id: ShortcutId::FilePaths,
@@ -921,7 +1020,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " for file paths",
+        label_key: Some(FooterTextKey::FooterForFilePaths),
     },
     ShortcutDescriptor {
         id: ShortcutId::PasteImage,
@@ -938,7 +1037,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             },
         ],
         prefix: "",
-        label: " to paste images",
+        label_key: Some(FooterTextKey::FooterToPasteImages),
     },
     ShortcutDescriptor {
         id: ShortcutId::ExternalEditor,
@@ -947,7 +1046,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " to edit in external editor",
+        label_key: Some(FooterTextKey::FooterToEditInExternalEditor),
     },
     ShortcutDescriptor {
         id: ShortcutId::EditPrevious,
@@ -956,7 +1055,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: "",
+        label_key: None,
     },
     ShortcutDescriptor {
         id: ShortcutId::Quit,
@@ -965,7 +1064,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " to exit",
+        label_key: Some(FooterTextKey::FooterToExit),
     },
     ShortcutDescriptor {
         id: ShortcutId::ShowTranscript,
@@ -974,7 +1073,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::Always,
         }],
         prefix: "",
-        label: " to view transcript",
+        label_key: Some(FooterTextKey::FooterToViewTranscript),
     },
     ShortcutDescriptor {
         id: ShortcutId::ChangeMode,
@@ -983,7 +1082,7 @@ const SHORTCUTS: &[ShortcutDescriptor] = &[
             condition: DisplayCondition::WhenCollaborationModesEnabled,
         }],
         prefix: "",
-        label: " to change mode",
+        label_key: Some(FooterTextKey::FooterToChangeMode),
     },
 ];
 
@@ -1163,6 +1262,7 @@ mod tests {
         props: &FooterProps,
         collaboration_mode_indicator: Option<CollaborationModeIndicator>,
     ) {
+        crate::i18n::set_locale("en");
         let height = footer_height(props).max(1);
         let mut terminal = Terminal::new(TestBackend::new(width, height)).unwrap();
         draw_footer_frame(&mut terminal, height, props, collaboration_mode_indicator);
@@ -1174,6 +1274,7 @@ mod tests {
         props: &FooterProps,
         collaboration_mode_indicator: Option<CollaborationModeIndicator>,
     ) -> String {
+        crate::i18n::set_locale("en");
         let height = footer_height(props).max(1);
         let mut terminal = Terminal::new(VT100Backend::new(width, height)).expect("terminal");
         draw_footer_frame(&mut terminal, height, props, collaboration_mode_indicator);
@@ -1612,5 +1713,21 @@ mod tests {
             .key;
 
         assert_eq!(actual_key, expected_key);
+    }
+
+    #[test]
+    fn chinese_footer_strings_are_defined() {
+        assert_eq!(
+            footer_text_for_language(FooterTextKey::FooterForShortcuts, true),
+            " 查看快捷键"
+        );
+        assert_eq!(
+            footer_text_for_language(FooterTextKey::ModePlan, true),
+            "规划模式"
+        );
+        assert_eq!(
+            footer_text_for_language(FooterTextKey::ContextPercentLeft, true),
+            "% 上下文剩余"
+        );
     }
 }

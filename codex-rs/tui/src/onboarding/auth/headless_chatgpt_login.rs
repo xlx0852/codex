@@ -135,9 +135,9 @@ pub(super) fn render_device_code_login(
     state: &ContinueWithDeviceCodeState,
 ) {
     let banner = if state.device_code.is_some() {
-        "Finish signing in via your browser"
+        super::localized("请在浏览器中完成登录", "Finish signing in via your browser")
     } else {
-        "Preparing device code login"
+        super::localized("正在准备设备码登录", "Preparing device code login")
     };
 
     let mut spans = vec!["  ".into()];
@@ -154,7 +154,13 @@ pub(super) fn render_device_code_login(
     let mut lines = vec![spans.into(), "".into()];
 
     if let Some(device_code) = &state.device_code {
-        lines.push("  1. Open this link in your browser and sign in".into());
+        lines.push(
+            super::localized(
+                "  1. 在浏览器中打开此链接并登录",
+                "  1. Open this link in your browser and sign in",
+            )
+            .into(),
+        );
         lines.push("".into());
         lines.push(Line::from(vec![
             "  ".into(),
@@ -162,7 +168,11 @@ pub(super) fn render_device_code_login(
         ]));
         lines.push("".into());
         lines.push(
-            "  2. Enter this one-time code after you are signed in (expires in 15 minutes)".into(),
+            super::localized(
+                "  2. 登录后输入此一次性验证码（15 分钟内有效）",
+                "  2. Enter this one-time code after you are signed in (expires in 15 minutes)",
+            )
+            .into(),
         );
         lines.push("".into());
         lines.push(Line::from(vec![
@@ -171,17 +181,31 @@ pub(super) fn render_device_code_login(
         ]));
         lines.push("".into());
         lines.push(
-            "  Device codes are a common phishing target. Never share this code."
-                .dim()
-                .into(),
+            super::localized(
+                "  设备码常被用于钓鱼攻击。请勿分享此验证码。",
+                "  Device codes are a common phishing target. Never share this code.",
+            )
+            .dim()
+            .into(),
         );
         lines.push("".into());
     } else {
-        lines.push("  Requesting a one-time code...".dim().into());
+        lines.push(
+            super::localized(
+                "  正在请求一次性验证码...",
+                "  Requesting a one-time code...",
+            )
+            .dim()
+            .into(),
+        );
         lines.push("".into());
     }
 
-    lines.push("  Press Esc to cancel".dim().into());
+    lines.push(
+        super::localized("  按 Esc 取消", "  Press Esc to cancel")
+            .dim()
+            .into(),
+    );
     Paragraph::new(lines)
         .wrap(Wrap { trim: false })
         .render(area, buf);

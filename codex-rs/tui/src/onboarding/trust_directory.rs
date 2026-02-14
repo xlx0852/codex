@@ -46,29 +46,29 @@ impl WidgetRef for &TrustDirectoryWidget {
 
         column.push(Line::from(vec![
             "> ".into(),
-            "You are in ".bold(),
+            crate::t!("trust_directory_you_are_in").bold(),
             self.cwd.to_string_lossy().to_string().into(),
         ]));
         column.push("");
 
         column.push(
-            Paragraph::new(
-                "Do you trust the contents of this directory? Working with untrusted contents comes with higher risk of prompt injection.".to_string(),
-            )
+            Paragraph::new(crate::t!("trust_directory_description"))
                 .wrap(Wrap { trim: true })
                 .inset(Insets::tlbr(0, 2, 0, 0)),
         );
         column.push("");
 
+        let yes_text = crate::t!("trust_yes_continue");
+        let no_text = crate::t!("trust_no_quit");
         let options: Vec<(&str, TrustDirectorySelection)> = vec![
-            ("Yes, continue", TrustDirectorySelection::Trust),
-            ("No, quit", TrustDirectorySelection::Quit),
+            (yes_text.as_str(), TrustDirectorySelection::Trust),
+            (no_text.as_str(), TrustDirectorySelection::Quit),
         ];
 
         for (idx, (text, selection)) in options.iter().enumerate() {
             column.push(selection_option_row(
                 idx,
-                text.to_string(),
+                (*text).to_string(),
                 self.highlighted == *selection,
             ));
         }
@@ -85,14 +85,19 @@ impl WidgetRef for &TrustDirectoryWidget {
             column.push("");
         }
 
+        let press_label = if crate::i18n::is_chinese() {
+            "按 "
+        } else {
+            "Press "
+        };
         column.push(
             Line::from(vec![
-                "Press ".dim(),
+                press_label.dim(),
                 key_hint::plain(KeyCode::Enter).into(),
                 if self.show_windows_create_sandbox_hint {
-                    " to continue and create a sandbox...".dim()
+                    crate::t!("trust_press_to_continue_create_sandbox").dim()
                 } else {
-                    " to continue".dim()
+                    crate::t!("trust_press_to_continue").dim()
                 },
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
@@ -142,7 +147,12 @@ impl TrustDirectoryWidget {
             resolve_root_git_project_for_trust(&self.cwd).unwrap_or_else(|| self.cwd.clone());
         if let Err(e) = set_project_trust_level(&self.codex_home, &target, TrustLevel::Trusted) {
             tracing::error!("Failed to set project trusted: {e:?}");
-            self.error = Some(format!("Failed to set trust for {}: {e}", target.display()));
+            let target_display = target.display().to_string();
+            self.error = Some(if crate::i18n::is_chinese() {
+                format!("为 {target_display} 设置信任失败：{e}")
+            } else {
+                format!("Failed to set trust for {target_display}: {e}")
+            });
         }
 
         self.selection = Some(TrustDirectorySelection::Trust);

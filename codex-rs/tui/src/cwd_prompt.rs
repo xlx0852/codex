@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use crate::i18n::localized;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::renderable::ColumnRenderable;
@@ -31,16 +32,16 @@ pub(crate) enum CwdPromptAction {
 
 impl CwdPromptAction {
     fn verb(self) -> &'static str {
-        match self {
-            CwdPromptAction::Resume => "resume",
-            CwdPromptAction::Fork => "fork",
-        }
-    }
-
-    fn past_participle(self) -> &'static str {
-        match self {
-            CwdPromptAction::Resume => "resumed",
-            CwdPromptAction::Fork => "forked",
+        if crate::i18n::is_chinese() {
+            match self {
+                CwdPromptAction::Resume => "继续",
+                CwdPromptAction::Fork => "分叉",
+            }
+        } else {
+            match self {
+                CwdPromptAction::Resume => "resume",
+                CwdPromptAction::Fork => "fork",
+            }
         }
     }
 }
@@ -180,45 +181,74 @@ impl WidgetRef for &CwdPromptScreen {
         let mut column = ColumnRenderable::new();
 
         let action_verb = self.action.verb();
-        let action_past = self.action.past_participle();
         let current_cwd = self.current_cwd.as_str();
         let session_cwd = self.session_cwd.as_str();
 
         column.push("");
-        column.push(Line::from(vec![
-            "Choose working directory to ".into(),
-            action_verb.bold(),
-            " this session".into(),
-        ]));
-        column.push("");
-        column.push(
-            Line::from(format!(
-                "Session = latest cwd recorded in the {action_past} session"
-            ))
-            .dim()
-            .inset(Insets::tlbr(0, 2, 0, 0)),
-        );
-        column.push(
-            Line::from("Current = your current working directory".dim())
+        if crate::i18n::is_chinese() {
+            column.push(Line::from(vec![
+                "选择用于".into(),
+                action_verb.bold(),
+                "此会话的工作目录".into(),
+            ]));
+            column.push("");
+            column.push(
+                Line::from("会话目录 = 该会话中最近记录的工作目录".dim())
+                    .inset(Insets::tlbr(0, 2, 0, 0)),
+            );
+            column.push(
+                Line::from("当前目录 = 你当前的工作目录".dim()).inset(Insets::tlbr(0, 2, 0, 0)),
+            );
+        } else {
+            let action_past = match self.action {
+                CwdPromptAction::Resume => "resumed",
+                CwdPromptAction::Fork => "forked",
+            };
+            column.push(Line::from(vec![
+                "Choose working directory to ".into(),
+                action_verb.bold(),
+                " this session".into(),
+            ]));
+            column.push("");
+            column.push(
+                Line::from(format!(
+                    "Session = latest cwd recorded in the {action_past} session"
+                ))
+                .dim()
                 .inset(Insets::tlbr(0, 2, 0, 0)),
-        );
+            );
+            column.push(
+                Line::from("Current = your current working directory".dim())
+                    .inset(Insets::tlbr(0, 2, 0, 0)),
+            );
+        }
         column.push("");
+        let session_option = if crate::i18n::is_chinese() {
+            format!("使用会话目录（{session_cwd}）")
+        } else {
+            format!("Use session directory ({session_cwd})")
+        };
         column.push(selection_option_row(
             0,
-            format!("Use session directory ({session_cwd})"),
+            session_option,
             self.highlighted == CwdSelection::Session,
         ));
+        let current_option = if crate::i18n::is_chinese() {
+            format!("使用当前目录（{current_cwd}）")
+        } else {
+            format!("Use current directory ({current_cwd})")
+        };
         column.push(selection_option_row(
             1,
-            format!("Use current directory ({current_cwd})"),
+            current_option,
             self.highlighted == CwdSelection::Current,
         ));
         column.push("");
         column.push(
             Line::from(vec![
-                "Press ".dim(),
+                localized("按 ", "Press ").dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to continue".dim(),
+                localized(" 继续", " to continue").dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

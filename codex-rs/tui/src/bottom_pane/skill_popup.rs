@@ -188,7 +188,11 @@ impl WidgetRef for SkillPopup {
             &rows,
             &self.state,
             MAX_POPUP_ROWS,
-            "no matches",
+            if crate::i18n::is_chinese() {
+                "无匹配项"
+            } else {
+                "no matches"
+            },
         );
         if let Some(hint_area) = hint_area {
             let hint_area = Rect {
@@ -203,11 +207,16 @@ impl WidgetRef for SkillPopup {
 }
 
 fn skill_popup_hint_line() -> Line<'static> {
+    let (press_label, insert_or_label, close_label) = if crate::i18n::is_chinese() {
+        ("按 ", " 插入，或 ", " 关闭")
+    } else {
+        ("Press ", " to insert or ", " to close")
+    };
     Line::from(vec![
-        "Press ".into(),
+        press_label.into(),
         key_hint::plain(KeyCode::Enter).into(),
-        " to insert or ".into(),
+        insert_or_label.into(),
         key_hint::plain(KeyCode::Esc).into(),
-        " to close".into(),
+        close_label.into(),
     ])
 }

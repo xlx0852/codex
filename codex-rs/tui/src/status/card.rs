@@ -40,6 +40,7 @@ use super::rate_limits::compose_rate_limit_data;
 use super::rate_limits::compose_rate_limit_data_many;
 use super::rate_limits::format_status_limit_summary;
 use super::rate_limits::render_status_limit_progress_bar;
+use crate::i18n::localized;
 use crate::wrapping::RtOptions;
 use crate::wrapping::word_wrap_lines;
 use codex_core::AuthManager;
@@ -189,24 +190,45 @@ impl StatusHistoryCell {
             ));
         }
         let (model_name, model_details) = compose_model_display(model_name, &config_entries);
-        let approval = config_entries
-            .iter()
-            .find(|(k, _)| *k == "approval")
-            .map(|(_, v)| v.clone())
-            .unwrap_or_else(|| "<unknown>".to_string());
+        let approval = if crate::i18n::is_chinese() {
+            match config.permissions.approval_policy.value() {
+                AskForApproval::UnlessTrusted => "不可信命令需审批".to_string(),
+                AskForApproval::OnFailure => "失败时审批".to_string(),
+                AskForApproval::OnRequest => "按需审批".to_string(),
+                AskForApproval::Never => "永不审批".to_string(),
+            }
+        } else {
+            config_entries
+                .iter()
+                .find(|(k, _)| *k == "approval")
+                .map(|(_, v)| v.clone())
+                .unwrap_or_else(|| "<unknown>".to_string())
+        };
         let sandbox = match config.permissions.sandbox_policy.get() {
-            SandboxPolicy::DangerFullAccess => "danger-full-access".to_string(),
-            SandboxPolicy::ReadOnly { .. } => "read-only".to_string(),
+            SandboxPolicy::DangerFullAccess => {
+                localized("完全访问", "danger-full-access").to_string()
+            }
+            SandboxPolicy::ReadOnly { .. } => localized("只读", "read-only").to_string(),
             SandboxPolicy::WorkspaceWrite {
                 network_access: true,
                 ..
-            } => "workspace-write with network access".to_string(),
-            SandboxPolicy::WorkspaceWrite { .. } => "workspace-write".to_string(),
+            } => localized(
+                "工作区可写（允许网络）",
+                "workspace-write with network access",
+            )
+            .to_string(),
+            SandboxPolicy::WorkspaceWrite { .. } => {
+                localized("工作区可写", "workspace-write").to_string()
+            }
             SandboxPolicy::ExternalSandbox { network_access } => {
                 if matches!(network_access, NetworkAccess::Enabled) {
-                    "external-sandbox (network access enabled)".to_string()
+                    localized(
+                        "外部沙箱（允许网络）",
+                        "external-sandbox (network access enabled)",
+                    )
+                    .to_string()
                 } else {
-                    "external-sandbox".to_string()
+                    localized("外部沙箱", "external-sandbox").to_string()
                 }
             }
         };
@@ -214,11 +236,13 @@ impl StatusHistoryCell {
             && *config.permissions.sandbox_policy.get()
                 == SandboxPolicy::new_workspace_write_policy()
         {
-            "Default".to_string()
+            localized("默认", "Default").to_string()
         } else if config.permissions.approval_policy.value() == AskForApproval::Never
             && *config.permissions.sandbox_policy.get() == SandboxPolicy::DangerFullAccess
         {
-            "Full Access".to_string()
+            localized("完全访问", "Full Access").to_string()
+        } else if crate::i18n::is_chinese() {
+            format!("自定义（{sandbox}，{approval}）")
         } else {
             format!("Custom ({sandbox}, {approval})")
         };
@@ -274,13 +298,13 @@ impl StatusHistoryCell {
 
         vec![
             Span::from(total_fmt),
-            Span::from(" total "),
+            Span::from(localized(" 总计 ", " total ")),
             Span::from(" (").dim(),
             Span::from(input_fmt).dim(),
-            Span::from(" input").dim(),
+            Span::from(localized(" 输入", " input")).dim(),
             Span::from(" + ").dim(),
             Span::from(output_fmt).dim(),
-            Span::from(" output").dim(),
+            Span::from(localized(" 输出", " output")).dim(),
             Span::from(")").dim(),
         ]
     }
@@ -292,10 +316,14 @@ impl StatusHistoryCell {
         let window_fmt = format_tokens_compact(context.window);
 
         Some(vec![
-            Span::from(format!("{percent}% left")),
+            Span::from(if crate::i18n::is_chinese() {
+                format!("{percent}% 剩余")
+            } else {
+                format!("{percent}% left")
+            }),
             Span::from(" (").dim(),
             Span::from(used_fmt).dim(),
-            Span::from(" used / ").dim(),
+            Span::from(localized(" 已用 / ", " used / ")).dim(),
             Span::from(window_fmt).dim(),
             Span::from(")").dim(),
         ])
@@ -309,9 +337,10 @@ impl StatusHistoryCell {
         match &self.rate_limits {
             StatusRateLimitData::Available(rows_data) => {
                 if rows_data.is_empty() {
-                    return vec![
-                        formatter.line("Limits", vec![Span::from("data not available yet").dim()]),
-                    ];
+                    return vec![formatter.line(
+                        localized("额度", "Limits"),
+                        vec![Span::from(localized("数据暂不可用", "data not available yet")).dim()],
+                    )];
                 }
 
                 self.rate_limit_row_lines(rows_data, available_inner_width, formatter)
@@ -320,13 +349,22 @@ impl StatusHistoryCell {
                 let mut lines =
                     self.rate_limit_row_lines(rows_data, available_inner_width, formatter);
                 lines.push(formatter.line(
-                    "Warning",
-                    vec![Span::from("limits may be stale - start new turn to refresh.").dim()],
+                    localized("提示", "Warning"),
+                    vec![
+                        Span::from(localized(
+                            "额度信息可能已过期，请开始新一轮以刷新。",
+                            "limits may be stale - start new turn to refresh.",
+                        ))
+                        .dim(),
+                    ],
                 ));
                 lines
             }
             StatusRateLimitData::Missing => {
-                vec![formatter.line("Limits", vec![Span::from("data not available yet").dim()])]
+                vec![formatter.line(
+                    localized("额度", "Limits"),
+                    vec![Span::from(localized("数据暂不可用", "data not available yet")).dim()],
+                )]
             }
         }
     }
@@ -355,7 +393,12 @@ impl StatusHistoryCell {
                     let base_line = Line::from(base_spans.clone());
 
                     if let Some(resets_at) = resets_at.as_ref() {
-                        let resets_span = Span::from(format!("(resets {resets_at})")).dim();
+                        let resets_span = Span::from(if crate::i18n::is_chinese() {
+                            format!("（重置于 {resets_at}）")
+                        } else {
+                            format!("(resets {resets_at})")
+                        })
+                        .dim();
                         let mut inline_spans = base_spans.clone();
                         inline_spans.push(Span::from(" ").dim());
                         inline_spans.push(resets_span.clone());
@@ -388,7 +431,7 @@ impl StatusHistoryCell {
         match &self.rate_limits {
             StatusRateLimitData::Available(rows) => {
                 if rows.is_empty() {
-                    push_label(labels, seen, "Limits");
+                    push_label(labels, seen, localized("额度", "Limits"));
                 } else {
                     for row in rows {
                         push_label(labels, seen, row.label.as_str());
@@ -399,9 +442,9 @@ impl StatusHistoryCell {
                 for row in rows {
                     push_label(labels, seen, row.label.as_str());
                 }
-                push_label(labels, seen, "Warning");
+                push_label(labels, seen, localized("提示", "Warning"));
             }
-            StatusRateLimitData::Missing => push_label(labels, seen, "Limits"),
+            StatusRateLimitData::Missing => push_label(labels, seen, localized("额度", "Limits")),
         }
     }
 }
@@ -429,39 +472,62 @@ impl HistoryCell for StatusHistoryCell {
                 (None, Some(plan)) => plan.clone(),
                 (None, None) => "ChatGPT".to_string(),
             },
-            StatusAccountDisplay::ApiKey => {
-                "API key configured (run codex login to use ChatGPT)".to_string()
-            }
+            StatusAccountDisplay::ApiKey => localized(
+                "已配置 API Key（运行 codex login 可改用 ChatGPT）",
+                "API key configured (run codex login to use ChatGPT)",
+            )
+            .to_string(),
         });
 
-        let mut labels: Vec<String> = vec!["Model", "Directory", "Permissions", "Agents.md"]
-            .into_iter()
-            .map(str::to_string)
-            .collect();
+        let mut labels: Vec<String> = vec![
+            localized("模型", "Model"),
+            localized("目录", "Directory"),
+            localized("权限", "Permissions"),
+            "Agents.md",
+        ]
+        .into_iter()
+        .map(str::to_string)
+        .collect();
         let mut seen: BTreeSet<String> = labels.iter().cloned().collect();
         let thread_name = self.thread_name.as_deref().filter(|name| !name.is_empty());
 
         if self.model_provider.is_some() {
-            push_label(&mut labels, &mut seen, "Model provider");
+            push_label(
+                &mut labels,
+                &mut seen,
+                localized("模型提供方", "Model provider"),
+            );
         }
         if account_value.is_some() {
-            push_label(&mut labels, &mut seen, "Account");
+            push_label(&mut labels, &mut seen, localized("账号", "Account"));
         }
         if thread_name.is_some() {
-            push_label(&mut labels, &mut seen, "Thread name");
+            push_label(&mut labels, &mut seen, localized("线程名", "Thread name"));
         }
         if self.session_id.is_some() {
-            push_label(&mut labels, &mut seen, "Session");
+            push_label(&mut labels, &mut seen, localized("会话", "Session"));
         }
         if self.session_id.is_some() && self.forked_from.is_some() {
-            push_label(&mut labels, &mut seen, "Forked from");
+            push_label(&mut labels, &mut seen, localized("分叉自", "Forked from"));
         }
         if self.collaboration_mode.is_some() {
-            push_label(&mut labels, &mut seen, "Collaboration mode");
+            push_label(
+                &mut labels,
+                &mut seen,
+                localized("协作模式", "Collaboration mode"),
+            );
         }
-        push_label(&mut labels, &mut seen, "Token usage");
+        push_label(
+            &mut labels,
+            &mut seen,
+            localized("Token 使用", "Token usage"),
+        );
         if self.token_usage.context_window.is_some() {
-            push_label(&mut labels, &mut seen, "Context window");
+            push_label(
+                &mut labels,
+                &mut seen,
+                localized("上下文窗口", "Context window"),
+            );
         }
 
         self.collect_rate_limit_labels(&mut seen, &mut labels);
@@ -469,16 +535,30 @@ impl HistoryCell for StatusHistoryCell {
         let formatter = FieldFormatter::from_labels(labels.iter().map(String::as_str));
         let value_width = formatter.value_width(available_inner_width);
 
-        let note_first_line = Line::from(vec![
-            Span::from("Visit ").cyan(),
-            "https://chatgpt.com/codex/settings/usage"
-                .cyan()
-                .underlined(),
-            Span::from(" for up-to-date").cyan(),
-        ]);
-        let note_second_line = Line::from(vec![
-            Span::from("information on rate limits and credits").cyan(),
-        ]);
+        let note_first_line = if crate::i18n::is_chinese() {
+            Line::from(vec![
+                Span::from("访问 ").cyan(),
+                "https://chatgpt.com/codex/settings/usage"
+                    .cyan()
+                    .underlined(),
+                Span::from(" 查看最新").cyan(),
+            ])
+        } else {
+            Line::from(vec![
+                Span::from("Visit ").cyan(),
+                "https://chatgpt.com/codex/settings/usage"
+                    .cyan()
+                    .underlined(),
+                Span::from(" for up-to-date").cyan(),
+            ])
+        };
+        let note_second_line = if crate::i18n::is_chinese() {
+            Line::from(vec![Span::from("额度与积分信息").cyan()])
+        } else {
+            Line::from(vec![
+                Span::from("information on rate limits and credits").cyan(),
+            ])
+        };
         let note_lines = word_wrap_lines(
             [note_first_line, note_second_line],
             RtOptions::new(available_inner_width),
@@ -495,41 +575,68 @@ impl HistoryCell for StatusHistoryCell {
 
         let directory_value = format_directory_display(&self.directory, Some(value_width));
 
-        lines.push(formatter.line("Model", model_spans));
+        lines.push(formatter.line(localized("模型", "Model"), model_spans));
         if let Some(model_provider) = self.model_provider.as_ref() {
-            lines.push(formatter.line("Model provider", vec![Span::from(model_provider.clone())]));
+            lines.push(formatter.line(
+                localized("模型提供方", "Model provider"),
+                vec![Span::from(model_provider.clone())],
+            ));
         }
-        lines.push(formatter.line("Directory", vec![Span::from(directory_value)]));
-        lines.push(formatter.line("Permissions", vec![Span::from(self.permissions.clone())]));
+        lines.push(formatter.line(
+            localized("目录", "Directory"),
+            vec![Span::from(directory_value)],
+        ));
+        lines.push(formatter.line(
+            localized("权限", "Permissions"),
+            vec![Span::from(self.permissions.clone())],
+        ));
         lines.push(formatter.line("Agents.md", vec![Span::from(self.agents_summary.clone())]));
 
         if let Some(account_value) = account_value {
-            lines.push(formatter.line("Account", vec![Span::from(account_value)]));
+            lines.push(formatter.line(
+                localized("账号", "Account"),
+                vec![Span::from(account_value)],
+            ));
         }
 
         if let Some(thread_name) = thread_name {
-            lines.push(formatter.line("Thread name", vec![Span::from(thread_name.to_string())]));
+            lines.push(formatter.line(
+                localized("线程名", "Thread name"),
+                vec![Span::from(thread_name.to_string())],
+            ));
         }
         if let Some(collab_mode) = self.collaboration_mode.as_ref() {
-            lines.push(formatter.line("Collaboration mode", vec![Span::from(collab_mode.clone())]));
+            lines.push(formatter.line(
+                localized("协作模式", "Collaboration mode"),
+                vec![Span::from(collab_mode.clone())],
+            ));
         }
         if let Some(session) = self.session_id.as_ref() {
-            lines.push(formatter.line("Session", vec![Span::from(session.clone())]));
+            lines.push(formatter.line(
+                localized("会话", "Session"),
+                vec![Span::from(session.clone())],
+            ));
         }
         if self.session_id.is_some()
             && let Some(forked_from) = self.forked_from.as_ref()
         {
-            lines.push(formatter.line("Forked from", vec![Span::from(forked_from.clone())]));
+            lines.push(formatter.line(
+                localized("分叉自", "Forked from"),
+                vec![Span::from(forked_from.clone())],
+            ));
         }
 
         lines.push(Line::from(Vec::<Span<'static>>::new()));
         // Hide token usage only for ChatGPT subscribers
         if !matches!(self.account, Some(StatusAccountDisplay::ChatGpt { .. })) {
-            lines.push(formatter.line("Token usage", self.token_usage_spans()));
+            lines.push(formatter.line(
+                localized("Token 使用", "Token usage"),
+                self.token_usage_spans(),
+            ));
         }
 
         if let Some(spans) = self.context_window_spans() {
-            lines.push(formatter.line("Context window", spans));
+            lines.push(formatter.line(localized("上下文窗口", "Context window"), spans));
         }
 
         lines.extend(self.rate_limit_lines(available_inner_width, &formatter));

@@ -134,7 +134,13 @@ impl WidgetRef for &FileSearchPopup {
         };
 
         let empty_message = if self.waiting {
-            "loading..."
+            if crate::i18n::is_chinese() {
+                "加载中..."
+            } else {
+                "loading..."
+            }
+        } else if crate::i18n::is_chinese() {
+            "无匹配项"
         } else {
             "no matches"
         };

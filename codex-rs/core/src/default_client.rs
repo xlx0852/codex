@@ -182,14 +182,21 @@ pub fn build_reqwest_client() -> reqwest::Client {
     let ua = get_codex_user_agent();
 
     let mut builder = reqwest::Client::builder()
-        // Set UA via dedicated helper to avoid header validation pitfalls
+        // Force rustls TLS backend for Cloudflare compatibility (ALPN support)
+        .use_rustls_tls()
         .user_agent(ua)
         .default_headers(default_headers());
     if is_sandboxed() {
         builder = builder.no_proxy();
     }
 
-    builder.build().unwrap_or_else(|_| reqwest::Client::new())
+    builder.build().unwrap_or_else(|e| {
+        tracing::error!("Failed to build reqwest client with rustls: {e}");
+        reqwest::Client::builder()
+            .use_rustls_tls()
+            .build()
+            .expect("reqwest client build must succeed")
+    })
 }
 
 pub fn default_headers() -> HeaderMap {

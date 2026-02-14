@@ -85,9 +85,9 @@ impl WidgetRef for &WelcomeWidget {
         }
         lines.push(Line::from(vec![
             "  ".into(),
-            "Welcome to ".into(),
+            crate::t!("welcome_title").into(),
             "Codex".bold(),
-            ", OpenAI's command-line coding agent".into(),
+            crate::t!("welcome_subtitle").into(),
         ]));
 
         Paragraph::new(lines)
@@ -128,25 +128,33 @@ mod tests {
 
     #[test]
     fn welcome_renders_animation_on_first_draw() {
+        // Ensure English locale for consistent testing
+        crate::i18n::set_locale("en");
+
         let widget = WelcomeWidget::new(false, FrameRequester::test_dummy(), true);
         let area = Rect::new(0, 0, MIN_ANIMATION_WIDTH, MIN_ANIMATION_HEIGHT);
         let mut buf = Buffer::empty(area);
         let frame_lines = widget.animation.current_frame().lines().count() as u16;
         (&widget).render(area, &mut buf);
 
-        let welcome_row = row_containing(&buf, "Welcome");
-        assert_eq!(welcome_row, Some(frame_lines + 1));
+        // Look for "Codex" since that's consistent across locales
+        let codex_row = row_containing(&buf, "Codex");
+        assert_eq!(codex_row, Some(frame_lines + 1));
     }
 
     #[test]
     fn welcome_skips_animation_below_height_breakpoint() {
+        // Ensure English locale for consistent testing
+        crate::i18n::set_locale("en");
+
         let widget = WelcomeWidget::new(false, FrameRequester::test_dummy(), true);
         let area = Rect::new(0, 0, MIN_ANIMATION_WIDTH, MIN_ANIMATION_HEIGHT - 1);
         let mut buf = Buffer::empty(area);
         (&widget).render(area, &mut buf);
 
-        let welcome_row = row_containing(&buf, "Welcome");
-        assert_eq!(welcome_row, Some(0));
+        // Look for "Codex" since that's consistent across locales
+        let codex_row = row_containing(&buf, "Codex");
+        assert_eq!(codex_row, Some(0));
     }
 
     #[test]

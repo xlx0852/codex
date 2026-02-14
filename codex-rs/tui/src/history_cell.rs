@@ -19,6 +19,7 @@ use crate::exec_cell::output_lines;
 use crate::exec_cell::spinner;
 use crate::exec_command::relativize_to_home;
 use crate::exec_command::strip_bash_lc_and_escape;
+use crate::i18n::localized;
 use crate::live_wrap::take_prefix_by_width;
 use crate::markdown::append_markdown;
 use crate::render::line_utils::line_to_static;
@@ -496,25 +497,29 @@ impl HistoryCell for UpdateAvailableHistoryCell {
         use ratatui_macros::line;
         use ratatui_macros::text;
         let update_instruction = if let Some(update_action) = self.update_action {
-            line!["Run ", update_action.command_str().cyan(), " to update."]
+            line![
+                localized("运行 ", "Run "),
+                update_action.command_str().cyan(),
+                localized(" 进行更新。", " to update.")
+            ]
         } else {
             line![
-                "See ",
+                localized("参见 ", "See "),
                 "https://github.com/openai/codex".cyan().underlined(),
-                " for installation options."
+                localized(" 获取安装方式。", " for installation options.")
             ]
         };
 
         let content = text![
             line![
                 padded_emoji("✨").bold().cyan(),
-                "Update available!".bold().cyan(),
+                localized("有可用更新！", "Update available!").bold().cyan(),
                 " ",
                 format!("{CODEX_CLI_VERSION} -> {}", self.latest_version).bold(),
             ],
             update_instruction,
             "",
-            "See full release notes:",
+            localized("完整发布说明：", "See full release notes:"),
             "https://github.com/openai/codex/releases/latest"
                 .cyan()
                 .underlined(),
@@ -590,7 +595,10 @@ impl HistoryCell for UnifiedExecInteractionCell {
         }
         let wrap_width = width as usize;
 
-        let mut header_spans = vec!["↳ ".dim(), "Interacted with background terminal".bold()];
+        let mut header_spans = vec![
+            "↳ ".dim(),
+            localized("与后台终端交互", "Interacted with background terminal").bold(),
+        ];
         if let Some(command) = &self.command_display
             && !command.is_empty()
         {
@@ -604,7 +612,7 @@ impl HistoryCell for UnifiedExecInteractionCell {
         push_owned_lines(&header_wrapped, &mut out);
 
         let input_lines: Vec<Line<'static>> = if self.stdin.is_empty() {
-            vec![vec!["(waited)".dim()].into()]
+            vec![vec![localized("（等待）", "(waited)").dim()].into()]
         } else {
             self.stdin
                 .lines()
@@ -660,11 +668,18 @@ impl HistoryCell for UnifiedExecProcessesCell {
         let wrap_width = width as usize;
         let max_processes = 16usize;
         let mut out: Vec<Line<'static>> = Vec::new();
-        out.push(vec!["Background terminals".bold()].into());
+        out.push(vec![localized("后台终端", "Background terminals").bold()].into());
         out.push("".into());
 
         if self.processes.is_empty() {
-            out.push("  • No background terminals running.".italic().into());
+            out.push(
+                localized(
+                    "  • 当前没有运行中的后台终端。",
+                    "  • No background terminals running.",
+                )
+                .italic()
+                .into(),
+            );
             return out;
         }
 
@@ -743,7 +758,11 @@ impl HistoryCell for UnifiedExecProcessesCell {
 
         let remaining = self.processes.len().saturating_sub(shown);
         if remaining > 0 {
-            let more_text = format!("... and {remaining} more running");
+            let more_text = if crate::i18n::is_chinese() {
+                format!("... 以及另外 {remaining} 个仍在运行")
+            } else {
+                format!("... and {remaining} more running")
+            };
             if wrap_width <= prefix_width {
                 out.push(Line::from(prefix.dim()));
             } else {
@@ -794,13 +813,17 @@ pub fn new_approval_decision_cell(
             let snippet = Span::from(exec_snippet(&command)).dim();
             (
                 "✔ ".green(),
-                vec![
-                    "You ".into(),
-                    "approved".bold(),
-                    " codex to run ".into(),
-                    snippet,
-                    " this time".bold(),
-                ],
+                if crate::i18n::is_chinese() {
+                    vec!["你".into(), "已批准".bold(), " codex 执行 ".into(), snippet]
+                } else {
+                    vec![
+                        "You ".into(),
+                        "approved".bold(),
+                        " codex to run ".into(),
+                        snippet,
+                        " this time".bold(),
+                    ]
+                },
             )
         }
         ApprovedExecpolicyAmendment {
@@ -809,49 +832,80 @@ pub fn new_approval_decision_cell(
             let snippet = Span::from(exec_snippet(&proposed_execpolicy_amendment.command)).dim();
             (
                 "✔ ".green(),
-                vec![
-                    "You ".into(),
-                    "approved".bold(),
-                    " codex to always run commands that start with ".into(),
-                    snippet,
-                ],
+                if crate::i18n::is_chinese() {
+                    vec![
+                        "你".into(),
+                        "已批准".bold(),
+                        " codex 对以下前缀命令默认执行：".into(),
+                        snippet,
+                    ]
+                } else {
+                    vec![
+                        "You ".into(),
+                        "approved".bold(),
+                        " codex to always run commands that start with ".into(),
+                        snippet,
+                    ]
+                },
             )
         }
         ApprovedForSession => {
             let snippet = Span::from(exec_snippet(&command)).dim();
             (
                 "✔ ".green(),
-                vec![
-                    "You ".into(),
-                    "approved".bold(),
-                    " codex to run ".into(),
-                    snippet,
-                    " every time this session".bold(),
-                ],
+                if crate::i18n::is_chinese() {
+                    vec![
+                        "你".into(),
+                        "已批准".bold(),
+                        " codex 在本会话内始终执行 ".into(),
+                        snippet,
+                    ]
+                } else {
+                    vec![
+                        "You ".into(),
+                        "approved".bold(),
+                        " codex to run ".into(),
+                        snippet,
+                        " every time this session".bold(),
+                    ]
+                },
             )
         }
         Denied => {
             let snippet = Span::from(exec_snippet(&command)).dim();
             (
                 "✗ ".red(),
-                vec![
-                    "You ".into(),
-                    "did not approve".bold(),
-                    " codex to run ".into(),
-                    snippet,
-                ],
+                if crate::i18n::is_chinese() {
+                    vec!["你".into(), "未批准".bold(), " codex 执行 ".into(), snippet]
+                } else {
+                    vec![
+                        "You ".into(),
+                        "did not approve".bold(),
+                        " codex to run ".into(),
+                        snippet,
+                    ]
+                },
             )
         }
         Abort => {
             let snippet = Span::from(exec_snippet(&command)).dim();
             (
                 "✗ ".red(),
-                vec![
-                    "You ".into(),
-                    "canceled".bold(),
-                    " the request to run ".into(),
-                    snippet,
-                ],
+                if crate::i18n::is_chinese() {
+                    vec![
+                        "你".into(),
+                        "已取消".bold(),
+                        " 这次执行请求：".into(),
+                        snippet,
+                    ]
+                } else {
+                    vec![
+                        "You ".into(),
+                        "canceled".bold(),
+                        " the request to run ".into(),
+                        snippet,
+                    ]
+                },
             )
         }
     };
@@ -888,7 +942,7 @@ struct CompletedMcpToolCallWithImageOutput {
 }
 impl HistoryCell for CompletedMcpToolCallWithImageOutput {
     fn display_lines(&self, _width: u16) -> Vec<Line<'static>> {
-        vec!["tool result (image output)".into()]
+        vec![localized("工具结果（图片输出）", "tool result (image output)").into()]
     }
 }
 
@@ -988,7 +1042,15 @@ impl HistoryCell for TooltipHistoryCell {
             .max(1);
         let mut lines: Vec<Line<'static>> = Vec::new();
         append_markdown(
-            &format!("**Tip:** {}", self.tip),
+            &format!(
+                "{} {}",
+                if crate::i18n::is_chinese() {
+                    "**提示：**"
+                } else {
+                    "**Tip:**"
+                },
+                self.tip
+            ),
             Some(wrap_width),
             &mut lines,
         );
@@ -1038,34 +1100,57 @@ pub(crate) fn new_session_info(
     if is_first_event {
         // Help lines below the header (new copy and list)
         let help_lines: Vec<Line<'static>> = vec![
-            "  To get started, describe a task or try one of these commands:"
-                .dim()
-                .into(),
+            localized(
+                "  你可以先描述一个任务，或尝试以下命令：",
+                "  To get started, describe a task or try one of these commands:",
+            )
+            .dim()
+            .into(),
             Line::from(""),
             Line::from(vec![
                 "  ".into(),
                 "/init".into(),
-                " - create an AGENTS.md file with instructions for Codex".dim(),
+                localized(
+                    " - 创建一个带有 Codex 指令的 AGENTS.md 文件",
+                    " - create an AGENTS.md file with instructions for Codex",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
                 "/status".into(),
-                " - show current session configuration".dim(),
+                localized(
+                    " - 显示当前会话配置",
+                    " - show current session configuration",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
                 "/permissions".into(),
-                " - choose what Codex is allowed to do".dim(),
+                localized(
+                    " - 选择 Codex 的权限范围",
+                    " - choose what Codex is allowed to do",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
                 "/model".into(),
-                " - choose what model and reasoning effort to use".dim(),
+                localized(
+                    " - 选择要使用的模型和推理强度",
+                    " - choose what model and reasoning effort to use",
+                )
+                .dim(),
             ]),
             Line::from(vec![
                 "  ".into(),
                 "/review".into(),
-                " - review any changes and find issues".dim(),
+                localized(
+                    " - 审查改动并发现问题",
+                    " - review any changes and find issues",
+                )
+                .dim(),
             ]),
         ];
 
@@ -1078,9 +1163,20 @@ pub(crate) fn new_session_info(
         }
         if requested_model != model {
             let lines = vec![
-                "model changed:".magenta().bold().into(),
-                format!("requested: {requested_model}").into(),
-                format!("used: {model}").into(),
+                localized("模型已变更：", "model changed:")
+                    .magenta()
+                    .bold()
+                    .into(),
+                if crate::i18n::is_chinese() {
+                    format!("请求：{requested_model}").into()
+                } else {
+                    format!("requested: {requested_model}").into()
+                },
+                if crate::i18n::is_chinese() {
+                    format!("实际：{model}").into()
+                } else {
+                    format!("used: {model}").into()
+                },
             ];
             parts.push(Box::new(PlainHistoryCell { lines }));
         }
@@ -1172,13 +1268,26 @@ impl SessionHeaderHistoryCell {
     }
 
     fn reasoning_label(&self) -> Option<&'static str> {
-        self.reasoning_effort.map(|effort| match effort {
-            ReasoningEffortConfig::Minimal => "minimal",
-            ReasoningEffortConfig::Low => "low",
-            ReasoningEffortConfig::Medium => "medium",
-            ReasoningEffortConfig::High => "high",
-            ReasoningEffortConfig::XHigh => "xhigh",
-            ReasoningEffortConfig::None => "none",
+        self.reasoning_effort.map(|effort| {
+            if crate::i18n::is_chinese() {
+                match effort {
+                    ReasoningEffortConfig::Minimal => "极低",
+                    ReasoningEffortConfig::Low => "低",
+                    ReasoningEffortConfig::Medium => "中",
+                    ReasoningEffortConfig::High => "高",
+                    ReasoningEffortConfig::XHigh => "极高",
+                    ReasoningEffortConfig::None => "无",
+                }
+            } else {
+                match effort {
+                    ReasoningEffortConfig::Minimal => "minimal",
+                    ReasoningEffortConfig::Low => "low",
+                    ReasoningEffortConfig::Medium => "medium",
+                    ReasoningEffortConfig::High => "high",
+                    ReasoningEffortConfig::XHigh => "xhigh",
+                    ReasoningEffortConfig::None => "none",
+                }
+            }
         })
     }
 }
@@ -1200,15 +1309,16 @@ impl HistoryCell for SessionHeaderHistoryCell {
         ];
 
         const CHANGE_MODEL_HINT_COMMAND: &str = "/model";
-        const CHANGE_MODEL_HINT_EXPLANATION: &str = " to change";
-        const DIR_LABEL: &str = "directory:";
-        let label_width = DIR_LABEL.len();
+        let (model_label_text, dir_label_text, change_model_hint_explanation) =
+            if crate::i18n::is_chinese() {
+                ("模型:", "目录:", " 切换")
+            } else {
+                ("model:", "directory:", " to change")
+            };
+        let label_width =
+            UnicodeWidthStr::width(dir_label_text).max(UnicodeWidthStr::width(model_label_text));
 
-        let model_label = format!(
-            "{model_label:<label_width$}",
-            model_label = "model:",
-            label_width = label_width
-        );
+        let model_label = format!("{model_label_text:<label_width$}");
         let reasoning_label = self.reasoning_label();
         let model_spans: Vec<Span<'static>> = {
             let mut spans = vec![
@@ -1221,11 +1331,11 @@ impl HistoryCell for SessionHeaderHistoryCell {
             }
             spans.push("   ".dim());
             spans.push(CHANGE_MODEL_HINT_COMMAND.cyan());
-            spans.push(CHANGE_MODEL_HINT_EXPLANATION.dim());
+            spans.push(change_model_hint_explanation.dim());
             spans
         };
 
-        let dir_label = format!("{DIR_LABEL:<label_width$}");
+        let dir_label = format!("{dir_label_text:<label_width$}");
         let dir_prefix = format!("{dir_label} ");
         let dir_prefix_width = UnicodeWidthStr::width(dir_prefix.as_str());
         let dir_max_width = inner_width.saturating_sub(dir_prefix_width);
@@ -1325,7 +1435,7 @@ impl McpToolCallCell {
     pub(crate) fn mark_failed(&mut self) {
         let elapsed = self.start_time.elapsed();
         self.duration = Some(elapsed);
-        self.result = Some(Err("interrupted".to_string()));
+        self.result = Some(Err(localized("已中断", "interrupted").to_string()));
     }
 
     fn render_content_block(block: &serde_json::Value, width: usize) -> String {
@@ -1344,16 +1454,30 @@ impl McpToolCallCell {
             rmcp::model::RawContent::Text(text) => {
                 format_and_truncate_tool_result(&text.text, TOOL_CALL_MAX_LINES, width)
             }
-            rmcp::model::RawContent::Image(_) => "<image content>".to_string(),
-            rmcp::model::RawContent::Audio(_) => "<audio content>".to_string(),
+            rmcp::model::RawContent::Image(_) => {
+                localized("<图片内容>", "<image content>").to_string()
+            }
+            rmcp::model::RawContent::Audio(_) => {
+                localized("<音频内容>", "<audio content>").to_string()
+            }
             rmcp::model::RawContent::Resource(resource) => {
                 let uri = match resource.resource {
                     rmcp::model::ResourceContents::TextResourceContents { uri, .. } => uri,
                     rmcp::model::ResourceContents::BlobResourceContents { uri, .. } => uri,
                 };
-                format!("embedded resource: {uri}")
+                if crate::i18n::is_chinese() {
+                    format!("内嵌资源：{uri}")
+                } else {
+                    format!("embedded resource: {uri}")
+                }
             }
-            rmcp::model::RawContent::ResourceLink(link) => format!("link: {}", link.uri),
+            rmcp::model::RawContent::ResourceLink(link) => {
+                if crate::i18n::is_chinese() {
+                    format!("链接：{}", link.uri)
+                } else {
+                    format!("link: {}", link.uri)
+                }
+            }
         }
     }
 }
@@ -1368,9 +1492,9 @@ impl HistoryCell for McpToolCallCell {
             None => spinner(Some(self.start_time), self.animations_enabled),
         };
         let header_text = if status.is_some() {
-            "Called"
+            localized("已调用", "Called")
         } else {
-            "Calling"
+            localized("调用中", "Calling")
         };
 
         let invocation_line = line_to_static(&format_mcp_invocation(self.invocation.clone()));
@@ -1421,7 +1545,11 @@ impl HistoryCell for McpToolCallCell {
                 }
                 Err(err) => {
                     let err_text = format_and_truncate_tool_result(
-                        &format!("Error: {err}"),
+                        &if crate::i18n::is_chinese() {
+                            format!("错误：{err}")
+                        } else {
+                            format!("Error: {err}")
+                        },
                         TOOL_CALL_MAX_LINES,
                         width as usize,
                     );
@@ -1467,9 +1595,9 @@ pub(crate) fn new_active_mcp_tool_call(
 
 fn web_search_header(completed: bool) -> &'static str {
     if completed {
-        "Searched"
+        localized("已搜索", "Searched")
     } else {
-        "Searching the web"
+        localized("正在搜索网络", "Searching the web")
     }
 }
 
@@ -1655,14 +1783,19 @@ pub(crate) fn empty_mcp_output() -> PlainHistoryCell {
     let lines: Vec<Line<'static>> = vec![
         "/mcp".magenta().into(),
         "".into(),
-        vec!["🔌  ".into(), "MCP Tools".bold()].into(),
+        vec!["🔌  ".into(), localized("MCP 工具", "MCP Tools").bold()].into(),
         "".into(),
-        "  • No MCP servers configured.".italic().into(),
+        localized(
+            "  • 尚未配置 MCP 服务器。",
+            "  • No MCP servers configured.",
+        )
+        .italic()
+        .into(),
         Line::from(vec![
-            "    See the ".into(),
+            localized("    参见 ", "    See the ").into(),
             "\u{1b}]8;;https://developers.openai.com/codex/mcp\u{7}MCP docs\u{1b}]8;;\u{7}"
                 .underlined(),
-            " to configure them.".into(),
+            localized(" 进行配置。", " to configure them.").into(),
         ])
         .style(Style::default().add_modifier(Modifier::DIM)),
     ];
@@ -1681,12 +1814,19 @@ pub(crate) fn new_mcp_tools_output(
     let mut lines: Vec<Line<'static>> = vec![
         "/mcp".magenta().into(),
         "".into(),
-        vec!["🔌  ".into(), "MCP Tools".bold()].into(),
+        vec!["🔌  ".into(), localized("MCP 工具", "MCP Tools").bold()].into(),
         "".into(),
     ];
 
     if tools.is_empty() {
-        lines.push("  • No MCP tools available.".italic().into());
+        lines.push(
+            localized(
+                "  • 当前没有可用的 MCP 工具。",
+                "  • No MCP tools available.",
+            )
+            .italic()
+            .into(),
+        );
         lines.push("".into());
     }
 
@@ -1709,17 +1849,35 @@ pub(crate) fn new_mcp_tools_output(
         let mut header: Vec<Span<'static>> = vec!["  • ".into(), server.clone().into()];
         if !cfg.enabled {
             header.push(" ".into());
-            header.push("(disabled)".red());
+            header.push(localized("（已禁用）", "(disabled)").red());
             lines.push(header.into());
             if let Some(reason) = cfg.disabled_reason.as_ref().map(ToString::to_string) {
-                lines.push(vec!["    • Reason: ".into(), reason.dim()].into());
+                lines.push(
+                    vec![
+                        localized("    • 原因：", "    • Reason: ").into(),
+                        reason.dim(),
+                    ]
+                    .into(),
+                );
             }
             lines.push(Line::from(""));
             continue;
         }
         lines.push(header.into());
-        lines.push(vec!["    • Status: ".into(), "enabled".green()].into());
-        lines.push(vec!["    • Auth: ".into(), auth_status.to_string().into()].into());
+        lines.push(
+            vec![
+                localized("    • 状态：", "    • Status: ").into(),
+                localized("已启用", "enabled").green(),
+            ]
+            .into(),
+        );
+        lines.push(
+            vec![
+                localized("    • 认证：", "    • Auth: ").into(),
+                auth_status.to_string().into(),
+            ]
+            .into(),
+        );
 
         match &cfg.transport {
             McpServerTransportConfig::Stdio {
@@ -1735,15 +1893,33 @@ pub(crate) fn new_mcp_tools_output(
                     format!(" {}", args.join(" "))
                 };
                 let cmd_display = format!("{command}{args_suffix}");
-                lines.push(vec!["    • Command: ".into(), cmd_display.into()].into());
+                lines.push(
+                    vec![
+                        localized("    • 命令：", "    • Command: ").into(),
+                        cmd_display.into(),
+                    ]
+                    .into(),
+                );
 
                 if let Some(cwd) = cwd.as_ref() {
-                    lines.push(vec!["    • Cwd: ".into(), cwd.display().to_string().into()].into());
+                    lines.push(
+                        vec![
+                            localized("    • 工作目录：", "    • Cwd: ").into(),
+                            cwd.display().to_string().into(),
+                        ]
+                        .into(),
+                    );
                 }
 
                 let env_display = format_env_display(env.as_ref(), env_vars);
                 if env_display != "-" {
-                    lines.push(vec!["    • Env: ".into(), env_display.into()].into());
+                    lines.push(
+                        vec![
+                            localized("    • 环境变量：", "    • Env: ").into(),
+                            env_display.into(),
+                        ]
+                        .into(),
+                    );
                 }
             }
             McpServerTransportConfig::StreamableHttp {
@@ -1752,7 +1928,13 @@ pub(crate) fn new_mcp_tools_output(
                 env_http_headers,
                 ..
             } => {
-                lines.push(vec!["    • URL: ".into(), url.clone().into()].into());
+                lines.push(
+                    vec![
+                        localized("    • 地址：", "    • URL: ").into(),
+                        url.clone().into(),
+                    ]
+                    .into(),
+                );
                 if let Some(headers) = http_headers.as_ref()
                     && !headers.is_empty()
                 {
@@ -1763,7 +1945,13 @@ pub(crate) fn new_mcp_tools_output(
                         .map(|(name, _)| format!("{name}=*****"))
                         .collect::<Vec<_>>()
                         .join(", ");
-                    lines.push(vec!["    • HTTP headers: ".into(), display.into()].into());
+                    lines.push(
+                        vec![
+                            localized("    • HTTP 头：", "    • HTTP headers: ").into(),
+                            display.into(),
+                        ]
+                        .into(),
+                    );
                 }
                 if let Some(headers) = env_http_headers.as_ref()
                     && !headers.is_empty()
@@ -1775,23 +1963,37 @@ pub(crate) fn new_mcp_tools_output(
                         .map(|(name, var)| format!("{name}={var}"))
                         .collect::<Vec<_>>()
                         .join(", ");
-                    lines.push(vec!["    • Env HTTP headers: ".into(), display.into()].into());
+                    lines.push(
+                        vec![
+                            localized("    • 环境变量 HTTP 头：", "    • Env HTTP headers: ")
+                                .into(),
+                            display.into(),
+                        ]
+                        .into(),
+                    );
                 }
             }
         }
 
         if names.is_empty() {
-            lines.push("    • Tools: (none)".into());
+            lines.push(localized("    • 工具：（无）", "    • Tools: (none)").into());
         } else {
-            lines.push(vec!["    • Tools: ".into(), names.join(", ").into()].into());
+            lines.push(
+                vec![
+                    localized("    • 工具：", "    • Tools: ").into(),
+                    names.join(", ").into(),
+                ]
+                .into(),
+            );
         }
 
         let server_resources: Vec<Resource> =
             resources.get(server.as_str()).cloned().unwrap_or_default();
         if server_resources.is_empty() {
-            lines.push("    • Resources: (none)".into());
+            lines.push(localized("    • 资源：（无）", "    • Resources: (none)").into());
         } else {
-            let mut spans: Vec<Span<'static>> = vec!["    • Resources: ".into()];
+            let mut spans: Vec<Span<'static>> =
+                vec![localized("    • 资源：", "    • Resources: ").into()];
 
             for (idx, resource) in server_resources.iter().enumerate() {
                 if idx > 0 {
@@ -1812,9 +2014,12 @@ pub(crate) fn new_mcp_tools_output(
             .cloned()
             .unwrap_or_default();
         if server_templates.is_empty() {
-            lines.push("    • Resource templates: (none)".into());
+            lines.push(
+                localized("    • 资源模板：（无）", "    • Resource templates: (none)").into(),
+            );
         } else {
-            let mut spans: Vec<Span<'static>> = vec!["    • Resource templates: ".into()];
+            let mut spans: Vec<Span<'static>> =
+                vec![localized("    • 资源模板：", "    • Resource templates: ").into()];
 
             for (idx, template) in server_templates.iter().enumerate() {
                 if idx > 0 {
@@ -1876,10 +2081,14 @@ impl HistoryCell for RequestUserInputResultCell {
             .count();
         let unanswered = total.saturating_sub(answered);
 
-        let mut header = vec!["•".dim(), " ".into(), "Questions".bold()];
-        header.push(format!(" {answered}/{total} answered").dim());
+        let mut header = vec!["•".dim(), " ".into(), localized("问题", "Questions").bold()];
+        header.push(if crate::i18n::is_chinese() {
+            format!(" 已回答 {answered}/{total}").dim()
+        } else {
+            format!(" {answered}/{total} answered").dim()
+        });
         if self.interrupted {
-            header.push(" (interrupted)".cyan());
+            header.push(localized("（已中断）", " (interrupted)").cyan());
         }
 
         let mut lines: Vec<Line<'static>> = vec![header.into()];
@@ -1898,7 +2107,8 @@ impl HistoryCell for RequestUserInputResultCell {
                 Style::default(),
             );
             if answer_missing && let Some(last) = question_lines.last_mut() {
-                last.spans.push(" (unanswered)".dim());
+                last.spans
+                    .push(localized("（未回答）", " (unanswered)").dim());
             }
             lines.extend(question_lines);
 
@@ -1909,7 +2119,7 @@ impl HistoryCell for RequestUserInputResultCell {
                 lines.extend(wrap_with_prefix(
                     "••••••",
                     width,
-                    "    answer: ".dim(),
+                    localized("    回答：", "    answer: ").dim(),
                     "            ".dim(),
                     Style::default().fg(Color::Cyan),
                 ));
@@ -1922,7 +2132,7 @@ impl HistoryCell for RequestUserInputResultCell {
                 lines.extend(wrap_with_prefix(
                     &option,
                     width,
-                    "    answer: ".dim(),
+                    localized("    回答：", "    answer: ").dim(),
                     "            ".dim(),
                     Style::default().fg(Color::Cyan),
                 ));
@@ -1930,13 +2140,13 @@ impl HistoryCell for RequestUserInputResultCell {
             if let Some(note) = note {
                 let (label, continuation, style) = if question.options.is_some() {
                     (
-                        "    note: ".dim(),
+                        localized("    备注：", "    note: ").dim(),
                         "          ".dim(),
                         Style::default().fg(Color::Cyan),
                     )
                 } else {
                     (
-                        "    answer: ".dim(),
+                        localized("    回答：", "    answer: ").dim(),
                         "            ".dim(),
                         Style::default().fg(Color::Cyan),
                     )
@@ -1946,7 +2156,11 @@ impl HistoryCell for RequestUserInputResultCell {
         }
 
         if self.interrupted && unanswered > 0 {
-            let summary = format!("interrupted with {unanswered} unanswered");
+            let summary = if crate::i18n::is_chinese() {
+                format!("会话中断，仍有 {unanswered} 个问题未回答")
+            } else {
+                format!("interrupted with {unanswered} unanswered")
+            };
             lines.extend(wrap_with_prefix(
                 &summary,
                 width,
@@ -2032,7 +2246,7 @@ pub(crate) struct ProposedPlanStreamCell {
 impl HistoryCell for ProposedPlanCell {
     fn display_lines(&self, width: u16) -> Vec<Line<'static>> {
         let mut lines: Vec<Line<'static>> = Vec::new();
-        lines.push(vec!["• ".dim(), "Proposed Plan".bold()].into());
+        lines.push(vec!["• ".dim(), localized("提议计划", "Proposed Plan").bold()].into());
         lines.push(Line::from(" "));
 
         let mut plan_lines: Vec<Line<'static>> = vec![Line::from(" ")];
@@ -2041,7 +2255,7 @@ impl HistoryCell for ProposedPlanCell {
         let mut body: Vec<Line<'static>> = Vec::new();
         append_markdown(&self.plan_markdown, Some(wrap_width), &mut body);
         if body.is_empty() {
-            body.push(Line::from("(empty)".dim().italic()));
+            body.push(Line::from(localized("（空）", "(empty)").dim().italic()));
         }
         plan_lines.extend(prefix_lines(body, "  ".into(), "  ".into()));
         plan_lines.push(Line::from(" "));
@@ -2096,7 +2310,7 @@ impl HistoryCell for PlanUpdateCell {
         };
 
         let mut lines: Vec<Line<'static>> = vec![];
-        lines.push(vec!["• ".dim(), "Updated Plan".bold()].into());
+        lines.push(vec!["• ".dim(), localized("更新计划", "Updated Plan").bold()].into());
 
         let mut indented_lines = vec![];
         let note = self
@@ -2109,7 +2323,11 @@ impl HistoryCell for PlanUpdateCell {
         };
 
         if self.plan.is_empty() {
-            indented_lines.push(Line::from("(no steps provided)".dim().italic()));
+            indented_lines.push(Line::from(
+                localized("（未提供步骤）", "(no steps provided)")
+                    .dim()
+                    .italic(),
+            ));
         } else {
             for PlanItemArg { step, status } in self.plan.iter() {
                 indented_lines.extend(render_step(status, step));
@@ -2138,7 +2356,11 @@ pub(crate) fn new_patch_apply_failure(stderr: String) -> PlainHistoryCell {
     let mut lines: Vec<Line<'static>> = Vec::new();
 
     // Failure title
-    lines.push(Line::from("✘ Failed to apply patch".magenta().bold()));
+    lines.push(Line::from(
+        localized("✘ 应用补丁失败", "✘ Failed to apply patch")
+            .magenta()
+            .bold(),
+    ));
 
     if !stderr.trim().is_empty() {
         let output = output_lines(
@@ -2164,7 +2386,7 @@ pub(crate) fn new_view_image_tool_call(path: PathBuf, cwd: &Path) -> PlainHistor
     let display_path = display_path_for(&path, cwd);
 
     let lines: Vec<Line<'static>> = vec![
-        vec!["• ".dim(), "Viewed Image".bold()].into(),
+        vec!["• ".dim(), localized("查看图片", "Viewed Image").bold()].into(),
         vec!["  └ ".dim(), display_path.dim()].into(),
     ];
 
@@ -2227,7 +2449,11 @@ impl HistoryCell for FinalMessageSeparator {
             .filter(|seconds| *seconds > 60)
             .map(super::status_indicator_widget::fmt_elapsed_compact)
         {
-            label_parts.push(format!("Worked for {elapsed_seconds}"));
+            label_parts.push(if crate::i18n::is_chinese() {
+                format!("耗时 {elapsed_seconds}")
+            } else {
+                format!("Worked for {elapsed_seconds}")
+            });
         }
         if let Some(metrics_label) = self.runtime_metrics.and_then(runtime_metrics_label) {
             label_parts.push(metrics_label);
@@ -2253,50 +2479,93 @@ pub(crate) fn runtime_metrics_label(summary: RuntimeMetricsSummary) -> Option<St
     let mut parts = Vec::new();
     if summary.tool_calls.count > 0 {
         let duration = format_duration_ms(summary.tool_calls.duration_ms);
-        let calls = pluralize(summary.tool_calls.count, "call", "calls");
-        parts.push(format!(
-            "Local tools: {} {calls} ({duration})",
-            summary.tool_calls.count
-        ));
+        if crate::i18n::is_chinese() {
+            parts.push(format!(
+                "本地工具：{} 次（{duration}）",
+                summary.tool_calls.count
+            ));
+        } else {
+            let calls = pluralize(summary.tool_calls.count, "call", "calls");
+            parts.push(format!(
+                "Local tools: {} {calls} ({duration})",
+                summary.tool_calls.count
+            ));
+        }
     }
     if summary.api_calls.count > 0 {
         let duration = format_duration_ms(summary.api_calls.duration_ms);
-        let calls = pluralize(summary.api_calls.count, "call", "calls");
-        parts.push(format!(
-            "Inference: {} {calls} ({duration})",
-            summary.api_calls.count
-        ));
+        if crate::i18n::is_chinese() {
+            parts.push(format!(
+                "推理调用：{} 次（{duration}）",
+                summary.api_calls.count
+            ));
+        } else {
+            let calls = pluralize(summary.api_calls.count, "call", "calls");
+            parts.push(format!(
+                "Inference: {} {calls} ({duration})",
+                summary.api_calls.count
+            ));
+        }
     }
     if summary.websocket_calls.count > 0 {
         let duration = format_duration_ms(summary.websocket_calls.duration_ms);
-        parts.push(format!(
-            "WebSocket: {} events send ({duration})",
-            summary.websocket_calls.count
-        ));
+        parts.push(if crate::i18n::is_chinese() {
+            format!(
+                "WebSocket：发送 {} 个事件（{duration}）",
+                summary.websocket_calls.count
+            )
+        } else {
+            format!(
+                "WebSocket: {} events send ({duration})",
+                summary.websocket_calls.count
+            )
+        });
     }
     if summary.streaming_events.count > 0 {
         let duration = format_duration_ms(summary.streaming_events.duration_ms);
-        let stream_label = pluralize(summary.streaming_events.count, "Stream", "Streams");
-        let events = pluralize(summary.streaming_events.count, "event", "events");
-        parts.push(format!(
-            "{stream_label}: {} {events} ({duration})",
-            summary.streaming_events.count
-        ));
+        if crate::i18n::is_chinese() {
+            parts.push(format!(
+                "流式输出：{} 个事件（{duration}）",
+                summary.streaming_events.count
+            ));
+        } else {
+            let stream_label = pluralize(summary.streaming_events.count, "Stream", "Streams");
+            let events = pluralize(summary.streaming_events.count, "event", "events");
+            parts.push(format!(
+                "{stream_label}: {} {events} ({duration})",
+                summary.streaming_events.count
+            ));
+        }
     }
     if summary.websocket_events.count > 0 {
         let duration = format_duration_ms(summary.websocket_events.duration_ms);
-        parts.push(format!(
-            "{} events received ({duration})",
-            summary.websocket_events.count
-        ));
+        parts.push(if crate::i18n::is_chinese() {
+            format!(
+                "接收 {} 个事件（{duration}）",
+                summary.websocket_events.count
+            )
+        } else {
+            format!(
+                "{} events received ({duration})",
+                summary.websocket_events.count
+            )
+        });
     }
     if summary.responses_api_overhead_ms > 0 {
         let duration = format_duration_ms(summary.responses_api_overhead_ms);
-        parts.push(format!("Responses API overhead: {duration}"));
+        parts.push(if crate::i18n::is_chinese() {
+            format!("Responses API 开销：{duration}")
+        } else {
+            format!("Responses API overhead: {duration}")
+        });
     }
     if summary.responses_api_inference_time_ms > 0 {
         let duration = format_duration_ms(summary.responses_api_inference_time_ms);
-        parts.push(format!("Responses API inference: {duration}"));
+        parts.push(if crate::i18n::is_chinese() {
+            format!("Responses API 推理：{duration}")
+        } else {
+            format!("Responses API inference: {duration}")
+        });
     }
     if summary.responses_api_engine_iapi_ttft_ms > 0
         || summary.responses_api_engine_service_ttft_ms > 0
@@ -2310,7 +2579,11 @@ pub(crate) fn runtime_metrics_label(summary: RuntimeMetricsSummary) -> Option<St
             let duration = format_duration_ms(summary.responses_api_engine_service_ttft_ms);
             ttft_parts.push(format!("{duration} (service)"));
         }
-        parts.push(format!("TTFT: {}", ttft_parts.join(" ")));
+        parts.push(if crate::i18n::is_chinese() {
+            format!("TTFT：{}", ttft_parts.join(" "))
+        } else {
+            format!("TTFT: {}", ttft_parts.join(" "))
+        });
     }
     if summary.responses_api_engine_iapi_tbt_ms > 0
         || summary.responses_api_engine_service_tbt_ms > 0
@@ -2324,7 +2597,11 @@ pub(crate) fn runtime_metrics_label(summary: RuntimeMetricsSummary) -> Option<St
             let duration = format_duration_ms(summary.responses_api_engine_service_tbt_ms);
             tbt_parts.push(format!("{duration} (service)"));
         }
-        parts.push(format!("TBT: {}", tbt_parts.join(" ")));
+        parts.push(if crate::i18n::is_chinese() {
+            format!("TBT：{}", tbt_parts.join(" "))
+        } else {
+            format!("TBT: {}", tbt_parts.join(" "))
+        });
     }
     if parts.is_empty() {
         None

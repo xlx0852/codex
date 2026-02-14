@@ -1,6 +1,7 @@
 #![cfg(not(debug_assertions))]
 
 use crate::history_cell::padded_emoji;
+use crate::i18n::localized;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::renderable::ColumnRenderable;
@@ -191,7 +192,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(Line::from(vec![
             padded_emoji("  ✨").bold().cyan(),
-            "Update available!".bold(),
+            localized("发现可用更新！", "Update available!").bold(),
             " ".into(),
             format!(
                 "{current} -> {latest}",
@@ -203,7 +204,7 @@ impl WidgetRef for &UpdatePromptScreen {
         column.push("");
         column.push(
             Line::from(vec![
-                "Release notes: ".dim(),
+                localized("更新说明：", "Release notes: ").dim(),
                 "https://github.com/openai/codex/releases/latest"
                     .dim()
                     .underlined(),
@@ -211,27 +212,32 @@ impl WidgetRef for &UpdatePromptScreen {
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );
         column.push("");
+        let update_now_label = if crate::i18n::is_chinese() {
+            format!("立即更新（执行 `{update_command}`）")
+        } else {
+            format!("Update now (runs `{update_command}`)")
+        };
         column.push(selection_option_row(
             0,
-            format!("Update now (runs `{update_command}`)"),
+            update_now_label,
             self.highlighted == UpdateSelection::UpdateNow,
         ));
         column.push(selection_option_row(
             1,
-            "Skip".to_string(),
+            localized("跳过", "Skip").to_string(),
             self.highlighted == UpdateSelection::NotNow,
         ));
         column.push(selection_option_row(
             2,
-            "Skip until next version".to_string(),
+            localized("在下个版本前不再提醒", "Skip until next version").to_string(),
             self.highlighted == UpdateSelection::DontRemind,
         ));
         column.push("");
         column.push(
             Line::from(vec![
-                "Press ".dim(),
+                localized("按 ", "Press ").dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to continue".dim(),
+                localized(" 继续", " to continue").dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::diff_render::display_path_for;
+use crate::i18n::localized;
 use crate::key_hint;
 use crate::text_formatting::truncate_text;
 use crate::tui::FrameRequester;
@@ -39,6 +40,7 @@ use unicode_width::UnicodeWidthStr;
 
 const PAGE_SIZE: usize = 25;
 const LOAD_NEAR_THRESHOLD: usize = 5;
+
 #[derive(Debug, Clone)]
 pub enum SessionSelection {
     StartFresh,
@@ -56,15 +58,15 @@ pub enum SessionPickerAction {
 impl SessionPickerAction {
     fn title(self) -> &'static str {
         match self {
-            SessionPickerAction::Resume => "Resume a previous session",
-            SessionPickerAction::Fork => "Fork a previous session",
+            SessionPickerAction::Resume => localized("继续之前的会话", "Resume a previous session"),
+            SessionPickerAction::Fork => localized("分叉之前的会话", "Fork a previous session"),
         }
     }
 
     fn action_label(self) -> &'static str {
         match self {
-            SessionPickerAction::Resume => "resume",
-            SessionPickerAction::Fork => "fork",
+            SessionPickerAction::Resume => localized("继续", "resume"),
+            SessionPickerAction::Fork => localized("分叉", "fork"),
         }
     }
 
@@ -221,8 +223,8 @@ async fn run_session_picker(
 /// Returns the human-readable column header for the given sort key.
 fn sort_key_label(sort_key: ThreadSortKey) -> &'static str {
     match sort_key {
-        ThreadSortKey::CreatedAt => "Created at",
-        ThreadSortKey::UpdatedAt => "Updated at",
+        ThreadSortKey::CreatedAt => localized("创建时间", "Created at"),
+        ThreadSortKey::UpdatedAt => localized("更新时间", "Updated at"),
     }
 }
 
@@ -857,7 +859,7 @@ fn draw_picker(tui: &mut Tui, state: &PickerState) -> std::io::Result<()> {
         let header_line: Line = vec![
             state.action.title().bold().cyan(),
             "  ".into(),
-            "Sort:".dim(),
+            localized("排序：", "Sort:").dim(),
             " ".into(),
             sort_key_label(state.sort_key).magenta(),
         ]
@@ -866,9 +868,13 @@ fn draw_picker(tui: &mut Tui, state: &PickerState) -> std::io::Result<()> {
 
         // Search line
         let q = if state.query.is_empty() {
-            "Type to search".dim().to_string()
+            localized("输入以搜索", "Type to search").dim().to_string()
         } else {
-            format!("Search: {}", state.query)
+            format!(
+                "{}{query}",
+                localized("搜索：", "Search: "),
+                query = state.query
+            )
         };
         frame.render_widget_ref(Line::from(q), search);
 
@@ -882,21 +888,25 @@ fn draw_picker(tui: &mut Tui, state: &PickerState) -> std::io::Result<()> {
         let action_label = state.action.action_label();
         let hint_line: Line = vec![
             key_hint::plain(KeyCode::Enter).into(),
-            format!(" to {action_label} ").dim(),
+            if crate::i18n::is_chinese() {
+                format!(" 以{action_label} ").dim()
+            } else {
+                format!(" to {action_label} ").dim()
+            },
             "    ".dim(),
             key_hint::plain(KeyCode::Esc).into(),
-            " to start new ".dim(),
+            localized(" 新建会话 ", " to start new ").dim(),
             "    ".dim(),
             key_hint::ctrl(KeyCode::Char('c')).into(),
-            " to quit ".dim(),
+            localized(" 退出 ", " to quit ").dim(),
             "    ".dim(),
             key_hint::plain(KeyCode::Tab).into(),
-            " to toggle sort ".dim(),
+            localized(" 切换排序 ", " to toggle sort ").dim(),
             "    ".dim(),
             key_hint::plain(KeyCode::Up).into(),
             "/".dim(),
             key_hint::plain(KeyCode::Down).into(),
-            " to browse".dim(),
+            localized(" 浏览", " to browse").dim(),
         ]
         .into();
         frame.render_widget_ref(hint_line, hint);
@@ -1030,7 +1040,13 @@ fn render_list(
     }
 
     if state.pagination.loading.is_pending() && y < area.y.saturating_add(area.height) {
-        let loading_line: Line = vec!["  ".into(), "Loading older sessions…".italic().dim()].into();
+        let loading_line: Line = vec![
+            "  ".into(),
+            localized("加载更早会话中…", "Loading older sessions…")
+                .italic()
+                .dim(),
+        ]
+        .into();
         let rect = Rect::new(area.x, y, area.width, 1);
         frame.render_widget_ref(loading_line, rect);
     }
@@ -1041,27 +1057,39 @@ fn render_empty_state_line(state: &PickerState) -> Line<'static> {
         if state.search_state.is_active()
             || (state.pagination.loading.is_pending() && state.pagination.next_cursor.is_some())
         {
-            return vec!["Searching…".italic().dim()].into();
+            return vec![localized("搜索中…", "Searching…").italic().dim()].into();
         }
         if state.pagination.reached_scan_cap {
             let msg = format!(
-                "Search scanned first {} sessions; more may exist",
-                state.pagination.num_scanned_files
+                "{}{}{}",
+                localized("仅扫描了前 ", "Search scanned first "),
+                state.pagination.num_scanned_files,
+                localized(" 个会话，可能还有更多", " sessions; more may exist")
             );
             return vec![Span::from(msg).italic().dim()].into();
         }
-        return vec!["No results for your search".italic().dim()].into();
+        return vec![
+            localized("未找到匹配结果", "No results for your search")
+                .italic()
+                .dim(),
+        ]
+        .into();
     }
 
     if state.all_rows.is_empty() && state.pagination.num_scanned_files == 0 {
-        return vec!["No sessions yet".italic().dim()].into();
+        return vec![localized("还没有会话", "No sessions yet").italic().dim()].into();
     }
 
     if state.pagination.loading.is_pending() {
-        return vec!["Loading older sessions…".italic().dim()].into();
+        return vec![
+            localized("加载更早会话中…", "Loading older sessions…")
+                .italic()
+                .dim(),
+        ]
+        .into();
     }
 
-    vec!["No sessions yet".italic().dim()].into()
+    vec![localized("还没有会话", "No sessions yet").italic().dim()].into()
 }
 
 fn human_time_ago(ts: DateTime<Utc>) -> String {
@@ -1070,28 +1098,36 @@ fn human_time_ago(ts: DateTime<Utc>) -> String {
     let secs = delta.num_seconds();
     if secs < 60 {
         let n = secs.max(0);
-        if n == 1 {
+        if crate::i18n::is_chinese() {
+            format!("{n}秒前")
+        } else if n == 1 {
             format!("{n} second ago")
         } else {
             format!("{n} seconds ago")
         }
     } else if secs < 60 * 60 {
         let m = secs / 60;
-        if m == 1 {
+        if crate::i18n::is_chinese() {
+            format!("{m}分钟前")
+        } else if m == 1 {
             format!("{m} minute ago")
         } else {
             format!("{m} minutes ago")
         }
     } else if secs < 60 * 60 * 24 {
         let h = secs / 3600;
-        if h == 1 {
+        if crate::i18n::is_chinese() {
+            format!("{h}小时前")
+        } else if h == 1 {
             format!("{h} hour ago")
         } else {
             format!("{h} hours ago")
         }
     } else {
         let d = secs / (60 * 60 * 24);
-        if d == 1 {
+        if crate::i18n::is_chinese() {
+            format!("{d}天前")
+        } else if d == 1 {
             format!("{d} day ago")
         } else {
             format!("{d} days ago")
@@ -1129,7 +1165,7 @@ fn render_column_headers(
     if visibility.show_created {
         let label = format!(
             "{text:<width$}",
-            text = "Created at",
+            text = localized("创建时间", "Created at"),
             width = metrics.max_created_width
         );
         spans.push(Span::from(label).bold());
@@ -1138,7 +1174,7 @@ fn render_column_headers(
     if visibility.show_updated {
         let label = format!(
             "{text:<width$}",
-            text = "Updated at",
+            text = localized("更新时间", "Updated at"),
             width = metrics.max_updated_width
         );
         spans.push(Span::from(label).bold());
@@ -1147,7 +1183,7 @@ fn render_column_headers(
     if visibility.show_branch {
         let label = format!(
             "{text:<width$}",
-            text = "Branch",
+            text = localized("分支", "Branch"),
             width = metrics.max_branch_width
         );
         spans.push(Span::from(label).bold());
@@ -1156,13 +1192,13 @@ fn render_column_headers(
     if visibility.show_cwd {
         let label = format!(
             "{text:<width$}",
-            text = "CWD",
+            text = localized("目录", "CWD"),
             width = metrics.max_cwd_width
         );
         spans.push(Span::from(label).bold());
         spans.push("  ".into());
     }
-    spans.push("Conversation".bold());
+    spans.push(localized("会话内容", "Conversation").bold());
     frame.render_widget_ref(Line::from(spans), area);
 }
 
@@ -1213,11 +1249,11 @@ fn calculate_column_metrics(rows: &[Row], include_cwd: bool) -> ColumnMetrics {
     }
 
     let mut labels: Vec<(String, String, String, String)> = Vec::with_capacity(rows.len());
-    let mut max_created_width = UnicodeWidthStr::width("Created at");
-    let mut max_updated_width = UnicodeWidthStr::width("Updated at");
-    let mut max_branch_width = UnicodeWidthStr::width("Branch");
+    let mut max_created_width = UnicodeWidthStr::width(localized("创建时间", "Created at"));
+    let mut max_updated_width = UnicodeWidthStr::width(localized("更新时间", "Updated at"));
+    let mut max_branch_width = UnicodeWidthStr::width(localized("分支", "Branch"));
     let mut max_cwd_width = if include_cwd {
-        UnicodeWidthStr::width("CWD")
+        UnicodeWidthStr::width(localized("目录", "CWD"))
     } else {
         0
     };

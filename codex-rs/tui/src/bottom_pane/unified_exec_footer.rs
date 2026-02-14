@@ -48,10 +48,14 @@ impl UnifiedExecFooter {
         }
 
         let count = self.processes.len();
-        let plural = if count == 1 { "" } else { "s" };
-        Some(format!(
-            "{count} background terminal{plural} running · /ps to view · /clean to close"
-        ))
+        if crate::i18n::is_chinese() {
+            Some(format!("{count} 个后台终端运行中 · /ps 查看 · /clean 关闭"))
+        } else {
+            let plural = if count == 1 { "" } else { "s" };
+            Some(format!(
+                "{count} background terminal{plural} running · /ps to view · /clean to close"
+            ))
+        }
     }
 
     fn render_lines(&self, width: u16) -> Vec<Line<'static>> {

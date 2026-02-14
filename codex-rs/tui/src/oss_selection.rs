@@ -1,6 +1,7 @@
 use std::io;
 use std::sync::LazyLock;
 
+use crate::i18n::localized;
 use codex_core::DEFAULT_LMSTUDIO_PORT;
 use codex_core::DEFAULT_OLLAMA_PORT;
 use codex_core::LMSTUDIO_OSS_PROVIDER_ID;
@@ -64,13 +65,19 @@ static OSS_SELECT_OPTIONS: LazyLock<Vec<SelectOption>> = LazyLock::new(|| {
     vec![
         SelectOption {
             label: Line::from(vec!["L".underlined(), "M Studio".into()]),
-            description: "Local LM Studio server (default port 1234)",
+            description: localized(
+                "本地 LM Studio 服务（默认端口 1234）",
+                "Local LM Studio server (default port 1234)",
+            ),
             key: KeyCode::Char('l'),
             provider_id: LMSTUDIO_OSS_PROVIDER_ID,
         },
         SelectOption {
             label: Line::from(vec!["O".underlined(), "llama".into()]),
-            description: "Local Ollama server (Responses API, default port 11434)",
+            description: localized(
+                "本地 Ollama 服务（Responses API，默认端口 11434）",
+                "Local Ollama server (Responses API, default port 11434)",
+            ),
             key: KeyCode::Char('o'),
             provider_id: OLLAMA_OSS_PROVIDER_ID,
         },
@@ -111,10 +118,13 @@ impl OssSelectionWidget<'_> {
         let mut contents: Vec<Line> = vec![
             Line::from(vec![
                 "? ".fg(Color::Blue),
-                "Select an open-source provider".bold(),
+                localized("选择一个开源模型提供方", "Select an open-source provider").bold(),
             ]),
             Line::from(""),
-            Line::from("  Choose which local AI server to use for your session."),
+            Line::from(localized(
+                "  选择当前会话要使用的本地 AI 服务。",
+                "  Choose which local AI server to use for your session.",
+            )),
             Line::from(""),
         ];
 
@@ -128,11 +138,21 @@ impl OssSelectionWidget<'_> {
             ]));
         }
         contents.push(Line::from(""));
-        contents.push(Line::from("  ● Running  ○ Not Running").add_modifier(Modifier::DIM));
+        contents.push(
+            Line::from(localized(
+                "  ● 运行中  ○ 未运行",
+                "  ● Running  ○ Not Running",
+            ))
+            .add_modifier(Modifier::DIM),
+        );
 
         contents.push(Line::from(""));
         contents.push(
-            Line::from("  Press Enter to select • Ctrl+C to exit").add_modifier(Modifier::DIM),
+            Line::from(localized(
+                "  按 Enter 选择 • Ctrl+C 退出",
+                "  Press Enter to select • Ctrl+C to exit",
+            ))
+            .add_modifier(Modifier::DIM),
         );
 
         let confirmation_prompt = Paragraph::new(contents).wrap(Wrap { trim: false });
@@ -258,7 +278,7 @@ impl WidgetRef for &OssSelectionWidget<'_> {
         ])
         .areas(response_chunk.inner(Margin::new(1, 0)));
 
-        Line::from("Select provider?").render(title_area, buf);
+        Line::from(localized("选择提供方？", "Select provider?")).render(title_area, buf);
 
         self.confirmation_prompt.clone().render(prompt_chunk, buf);
         let areas = Layout::horizontal(

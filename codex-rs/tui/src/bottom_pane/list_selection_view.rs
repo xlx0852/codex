@@ -33,6 +33,22 @@ use super::selection_popup_common::render_rows_stable_col_widths;
 use super::selection_popup_common::render_rows_with_col_width_mode;
 use unicode_width::UnicodeWidthStr;
 
+fn view_all_hint(header_height: u16) -> String {
+    if crate::i18n::is_chinese() {
+        format!("[… {header_height} 行] ctrl + a 查看全部")
+    } else {
+        format!("[… {header_height} lines] ctrl + a view all")
+    }
+}
+
+fn no_matches_text() -> &'static str {
+    if crate::i18n::is_chinese() {
+        "无匹配项"
+    } else {
+        "no matches"
+    }
+}
+
 /// One selectable item in the generic selection list.
 pub(crate) type SelectionAction = Box<dyn Fn(&AppEventSender) + Send + Sync>;
 
@@ -234,9 +250,17 @@ impl ListSelectionView {
                     let prefix = if is_selected { '›' } else { ' ' };
                     let name = item.name.as_str();
                     let marker = if item.is_current {
-                        " (current)"
+                        if crate::i18n::is_chinese() {
+                            "（当前）"
+                        } else {
+                            " (current)"
+                        }
                     } else if item.is_default {
-                        " (default)"
+                        if crate::i18n::is_chinese() {
+                            "（默认）"
+                        } else {
+                            " (default)"
+                        }
                     } else {
                         ""
                     };
@@ -577,10 +601,8 @@ impl Renderable for ListSelectionView {
             let [header_area, elision_area] =
                 Layout::vertical([Constraint::Fill(1), Constraint::Length(1)]).areas(header_area);
             self.header.render(header_area, buf);
-            Paragraph::new(vec![
-                Line::from(format!("[… {header_height} lines] ctrl + a view all")).dim(),
-            ])
-            .render(elision_area, buf);
+            Paragraph::new(vec![Line::from(view_all_hint(header_height)).dim()])
+                .render(elision_area, buf);
         } else {
             self.header.render(header_area, buf);
         }
@@ -612,7 +634,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    "no matches",
+                    no_matches_text(),
                 ),
                 ColumnWidthMode::AutoAllRows => render_rows_stable_col_widths(
                     render_area,
@@ -620,7 +642,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    "no matches",
+                    no_matches_text(),
                 ),
                 ColumnWidthMode::Fixed => render_rows_with_col_width_mode(
                     render_area,
@@ -628,7 +650,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    "no matches",
+                    no_matches_text(),
                     ColumnWidthMode::Fixed,
                 ),
             };

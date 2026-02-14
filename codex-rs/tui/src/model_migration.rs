@@ -1,3 +1,4 @@
+use crate::i18n::localized;
 use crate::key_hint;
 use crate::markdown_render::render_markdown_text_with_width;
 use crate::render::Insets;
@@ -51,8 +52,8 @@ impl MigrationMenuOption {
 
     fn label(self) -> &'static str {
         match self {
-            Self::TryNewModel => "Try new model",
-            Self::UseExistingModel => "Use existing model",
+            Self::TryNewModel => localized("尝试新模型", "Try new model"),
+            Self::UseExistingModel => localized("继续使用当前模型", "Use existing model"),
         }
     }
 }
@@ -82,7 +83,12 @@ pub(crate) fn migration_copy_for_models(
     }
 
     let heading_text = Span::from(format!(
-        "Codex just got an upgrade. Introducing {target_display_name}."
+        "{}{target_display_name}{}",
+        localized(
+            "Codex 刚刚升级，引入 ",
+            "Codex just got an upgrade. Introducing "
+        ),
+        localized("。", "."),
     ))
     .bold();
     let description_line: Line<'static>;
@@ -93,25 +99,42 @@ pub(crate) fn migration_copy_for_models(
             .filter(|desc| !desc.is_empty())
             .map(Line::from)
             .unwrap_or_else(|| {
-                Line::from(format!(
-                    "{target_display_name} is recommended for better performance and reliability."
-                ))
+                if crate::i18n::is_chinese() {
+                    Line::from(format!("{target_display_name} 更推荐用于获得更好的性能与稳定性。"))
+                } else {
+                    Line::from(format!(
+                        "{target_display_name} is recommended for better performance and reliability."
+                    ))
+                }
             });
     }
 
     let mut content = vec![];
     if migration_copy.is_none() {
-        content.push(Line::from(format!(
-            "We recommend switching from {current_model} to {target_model}."
-        )));
+        if crate::i18n::is_chinese() {
+            content.push(Line::from(format!(
+                "我们建议从 {current_model} 切换到 {target_model}。"
+            )));
+        } else {
+            content.push(Line::from(format!(
+                "We recommend switching from {current_model} to {target_model}."
+            )));
+        }
         content.push(Line::from(""));
     }
 
     if let Some(model_link) = model_link {
-        content.push(Line::from(vec![
-            format!("{description_line} Learn more about {target_display_name} at ").into(),
-            model_link.cyan().underlined(),
-        ]));
+        if crate::i18n::is_chinese() {
+            content.push(Line::from(vec![
+                format!("{description_line} 了解更多 {target_display_name}：").into(),
+                model_link.cyan().underlined(),
+            ]));
+        } else {
+            content.push(Line::from(vec![
+                format!("{description_line} Learn more about {target_display_name} at ").into(),
+                model_link.cyan().underlined(),
+            ]));
+        }
         content.push(Line::from(""));
     } else {
         content.push(description_line);
@@ -120,10 +143,14 @@ pub(crate) fn migration_copy_for_models(
 
     if can_opt_out {
         content.push(Line::from(format!(
-            "You can continue using {current_model} if you prefer."
+            "{}{current_model}{}",
+            localized("如果你愿意，也可以继续使用 ", "You can continue using "),
+            localized("。", " if you prefer."),
         )));
     } else {
-        content.push(Line::from("Press enter to continue".dim()));
+        content.push(Line::from(
+            localized("按 Enter 继续", "Press enter to continue").dim(),
+        ));
     }
 
     ModelMigrationCopy {
@@ -330,9 +357,12 @@ impl ModelMigrationScreen {
     fn render_menu(&self, column: &mut ColumnRenderable) {
         column.push(Line::from(""));
         column.push(
-            Paragraph::new("Choose how you'd like Codex to proceed.")
-                .wrap(Wrap { trim: false })
-                .inset(Insets::tlbr(0, 2, 0, 0)),
+            Paragraph::new(localized(
+                "请选择 Codex 的后续处理方式。",
+                "Choose how you'd like Codex to proceed.",
+            ))
+            .wrap(Wrap { trim: false })
+            .inset(Insets::tlbr(0, 2, 0, 0)),
         );
         column.push(Line::from(""));
 
@@ -347,13 +377,13 @@ impl ModelMigrationScreen {
         column.push(Line::from(""));
         column.push(
             Line::from(vec![
-                "Use ".dim(),
+                localized("使用 ", "Use ").dim(),
                 key_hint::plain(KeyCode::Up).into(),
                 "/".dim(),
                 key_hint::plain(KeyCode::Down).into(),
-                " to move, press ".dim(),
+                localized(" 移动，按 ", " to move, press ").dim(),
                 key_hint::plain(KeyCode::Enter).into(),
-                " to confirm".dim(),
+                localized(" 确认", " to confirm").dim(),
             ])
             .inset(Insets::tlbr(0, 2, 0, 0)),
         );

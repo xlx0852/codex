@@ -14,6 +14,12 @@ const OTHER_TOOLTIP: &str = "*New* Build faster with the **Codex App**. Run 'cod
 const OTHER_TOOLTIP_NON_MAC: &str = "*New* Build faster with Codex.";
 const FREE_GO_TOOLTIP: &str =
     "*New* Codex is included in your plan for free through *March 2nd* – let’s build together.";
+const PAID_TOOLTIP_ZH: &str = "*新功能* 尝试 **Codex 应用**，享受 2 倍速率限制（至 *4 月 2 日*）。运行 'codex app' 或访问 https://chatgpt.com/codex?app-landing-page=true";
+const PAID_TOOLTIP_NON_MAC_ZH: &str = "*新功能* 2 倍速率限制（至 *4 月 2 日*）。";
+const OTHER_TOOLTIP_ZH: &str = "*新功能* 使用 **Codex 应用** 更快构建。运行 'codex app' 或访问 https://chatgpt.com/codex?app-landing-page=true";
+const OTHER_TOOLTIP_NON_MAC_ZH: &str = "*新功能* 使用 Codex 更快构建。";
+const FREE_GO_TOOLTIP_ZH: &str =
+    "*新功能* 你的计划可免费使用 Codex（至 *3 月 2 日*），一起构建吧。";
 
 const RAW_TOOLTIPS: &str = include_str!("../tooltips.txt");
 
@@ -56,6 +62,7 @@ pub(crate) fn get_tooltip(plan: Option<PlanType>) -> Option<String> {
 
     // Leave small chance for a random tooltip to be shown.
     if rng.random_ratio(8, 10) {
+        let is_chinese = crate::i18n::is_chinese();
         match plan {
             Some(PlanType::Plus)
             | Some(PlanType::Business)
@@ -63,18 +70,34 @@ pub(crate) fn get_tooltip(plan: Option<PlanType>) -> Option<String> {
             | Some(PlanType::Enterprise)
             | Some(PlanType::Pro) => {
                 let tooltip = if IS_MACOS {
-                    PAID_TOOLTIP
+                    if is_chinese {
+                        PAID_TOOLTIP_ZH
+                    } else {
+                        PAID_TOOLTIP
+                    }
+                } else if is_chinese {
+                    PAID_TOOLTIP_NON_MAC_ZH
                 } else {
                     PAID_TOOLTIP_NON_MAC
                 };
                 return Some(tooltip.to_string());
             }
             Some(PlanType::Go) | Some(PlanType::Free) => {
-                return Some(FREE_GO_TOOLTIP.to_string());
+                return Some(if is_chinese {
+                    FREE_GO_TOOLTIP_ZH.to_string()
+                } else {
+                    FREE_GO_TOOLTIP.to_string()
+                });
             }
             _ => {
                 let tooltip = if IS_MACOS {
-                    OTHER_TOOLTIP
+                    if is_chinese {
+                        OTHER_TOOLTIP_ZH
+                    } else {
+                        OTHER_TOOLTIP
+                    }
+                } else if is_chinese {
+                    OTHER_TOOLTIP_NON_MAC_ZH
                 } else {
                     OTHER_TOOLTIP_NON_MAC
                 };

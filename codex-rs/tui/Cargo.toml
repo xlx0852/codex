@@ -96,6 +96,7 @@ tree-sitter-bash = { workspace = true }
 tree-sitter-highlight = { workspace = true }
 unicode-segmentation = { workspace = true }
 unicode-width = { workspace = true }
+rust-i18n = "1"
 url = { workspace = true }
 webbrowser = { workspace = true }
 uuid = { workspace = true }
