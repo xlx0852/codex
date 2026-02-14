@@ -111,6 +111,7 @@ feedback_thread_id: "  线程 ID："
 # 技能
 skills_enable_disable: "启用/禁用技能"
 skills_search_placeholder: "输入以搜索技能"
+skills_toggle_desc: "开启或关闭技能。更改会自动保存。"
 
 # 实验性功能
 experimental_features: "实验性功能"
@@ -173,3 +174,68 @@ action_cancel: "取消"
 action_back: "返回"
 action_close: "关闭"
 action_quit: "退出"
+
+# 输入占位符
+input_notes_placeholder: "添加备注"
+input_answer_placeholder: "输入你的回答（可选）"
+input_select_option_placeholder: "先选择一个选项再添加备注"
+input_other_option: "以上都不符合"
+
+# 未回答问题确认
+unanswered_confirm_title: "要提交未回答的问题吗？"
+unanswered_confirm_go_back: "返回"
+unanswered_confirm_submit: "继续提交"
+unanswered_confirm_question_singular: "个问题"
+unanswered_confirm_question_plural: "个问题"
+unanswered_confirm_remaining: " 个未回答"
+
+# 技能开关
+skills_enabled: "已启用"
+skills_disabled: "已禁用"
+skills_no_description: "无描述"
+skills_press_to_toggle: "按 "
+skills_or: " 或 "
+skills_to_toggle: " 切换"
+skills_toggle_close: " 关闭"
+
+# 文件搜索
+file_search_select: "按 "
+file_search_to_confirm: " 确认"
+file_search_no_matches: "无匹配"
+
+# 技能弹窗
+skill_insert: "按 "
+skill_or: " 或 "
+skill_to_insert: " 插入"
+
+# 实验性功能
+experimental_press: "按 "
+experimental_to_select: " 选择"
+experimental_to_save: " 保存"
+
+# 统一执行页脚
+unified_exec_and: " 和 "
+unified_exec_more: " 等"
+
+# 列表选择
+list_no_items: "无项目"
+list_create_new: "创建"
+
+# 弹窗常量
+popup_press: "按 "
+popup_to_confirm: " 确认"
+popup_to_go_back: " 返回"
+
+# 多选
+multi_select_press: "按 "
+multi_select_to_confirm: " 确认"
+multi_select_selected: " 已选择"
+multi_select_create: "创建"
+
+# 应用链接
+app_link_use: "使用"
+app_link_move: "移动"
+app_link_select: "选择"
+
+# 命令弹窗
+command_no_matches: "无匹配"

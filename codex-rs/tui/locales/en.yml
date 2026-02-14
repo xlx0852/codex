@@ -111,6 +111,7 @@ feedback_thread_id: " Thread ID: "
 # Skills
 skills_enable_disable: "Enable/Disable Skills"
 skills_search_placeholder: "Type to search skills"
+skills_toggle_desc: "Turn skills on or off. Your changes are saved automatically."
 
 # Experimental features
 experimental_features: "Experimental features"
@@ -173,3 +174,68 @@ action_cancel: "Cancel"
 action_back: "Back"
 action_close: "Close"
 action_quit: "Quit"
+
+# Input placeholders
+input_notes_placeholder: "Add a note"
+input_answer_placeholder: "Type your answer (optional)"
+input_select_option_placeholder: "Select an option to add a note"
+input_other_option: "None of the above"
+
+# Unanswered confirmation
+unanswered_confirm_title: "Submit with unanswered questions?"
+unanswered_confirm_go_back: "Go back"
+unanswered_confirm_submit: "Continue to submit"
+unanswered_confirm_question_singular: " question"
+unanswered_confirm_question_plural: " questions"
+unanswered_confirm_remaining: " remaining"
+
+# Skills toggle
+skills_enabled: "Enabled"
+skills_disabled: "Disabled"
+skills_no_description: "No description"
+skills_press_to_toggle: "Press "
+skills_or: " or "
+skills_to_toggle: " to toggle"
+skills_toggle_close: " to close"
+
+# File search
+file_search_select: "Select "
+file_search_to_confirm: " to confirm"
+file_search_no_matches: "No matches"
+
+# Skill popup
+skill_insert: "Insert"
+skill_or: " or "
+skill_to_insert: " to insert"
+
+# Experimental features
+experimental_press: "Press "
+experimental_to_select: " to select"
+experimental_to_save: " to save"
+
+# Unified exec footer
+unified_exec_and: " and "
+unified_exec_more: " more"
+
+# List selection
+list_no_items: "No items"
+list_create_new: "Create new"
+
+# Popup constants
+popup_press: "Press "
+popup_to_confirm: " to confirm"
+popup_to_go_back: " to go back"
+
+# Multi select
+multi_select_press: "Press "
+multi_select_to_confirm: " to confirm"
+multi_select_selected: " selected"
+multi_select_create: "Create"
+
+# App link
+app_link_use: "Use"
+app_link_move: "Move"
+app_link_select: "Select"
+
+# Command popup
+command_no_matches: "No matches"

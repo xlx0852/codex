@@ -14,7 +14,7 @@ use ratatui::widgets::Widget;
 
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
-use crate::i18n::localized;
+use crate::i18n::t;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::RectExt as _;
@@ -57,14 +57,10 @@ impl SkillsToggleView {
     pub(crate) fn new(items: Vec<SkillsToggleItem>, app_event_tx: AppEventSender) -> Self {
         let mut header = ColumnRenderable::new();
         header.push(Line::from(
-            localized("启用/禁用技能", "Enable/Disable Skills").bold(),
+            t!("skills_enable_disable").bold(),
         ));
         header.push(Line::from(
-            localized(
-                "开启或关闭技能。更改会自动保存。",
-                "Turn skills on or off. Your changes are saved automatically.",
-            )
-            .dim(),
+            t!("skills_toggle_desc").dim(),
         ));
 
         let mut view = Self {
@@ -328,7 +324,7 @@ impl Renderable for SkillsToggleView {
         if search_area.height >= 2 {
             let [placeholder_area, input_area] =
                 Layout::vertical([Constraint::Length(1), Constraint::Length(1)]).areas(search_area);
-            Line::from(localized("输入以搜索技能", "Type to search skills").dim())
+            Line::from(t!("skills_search_placeholder").dim())
                 .render(placeholder_area, buf);
             let line = if self.search_query.is_empty() {
                 Line::from(vec![SEARCH_PROMPT_PREFIX.dim()])
@@ -341,7 +337,7 @@ impl Renderable for SkillsToggleView {
             line.render(input_area, buf);
         } else if search_area.height > 0 {
             let query_span = if self.search_query.is_empty() {
-                localized("输入以搜索技能", "Type to search skills").dim()
+                t!("skills_search_placeholder").dim()
             } else {
                 self.search_query.clone().into()
             };
@@ -361,11 +357,7 @@ impl Renderable for SkillsToggleView {
                 &rows,
                 &self.state,
                 render_area.height as usize,
-                if crate::i18n::is_chinese() {
-                    "无匹配项"
-                } else {
-                    "no matches"
-                },
+                t!("file_search_no_matches"),
             );
         }
 
@@ -380,19 +372,14 @@ impl Renderable for SkillsToggleView {
 }
 
 fn skills_toggle_hint_line() -> Line<'static> {
-    let (press_label, or_label, toggle_label, close_label) = if crate::i18n::is_chinese() {
-        ("按 ", " 或 ", " 切换；", " 关闭")
-    } else {
-        ("Press ", " or ", " to toggle; ", " to close")
-    };
     Line::from(vec![
-        press_label.into(),
+        t!("skills_press_to_toggle").into(),
         key_hint::plain(KeyCode::Char(' ')).into(),
-        or_label.into(),
+        t!("skills_or").into(),
         key_hint::plain(KeyCode::Enter).into(),
-        toggle_label.into(),
+        t!("skills_to_toggle").into(),
         key_hint::plain(KeyCode::Esc).into(),
-        close_label.into(),
+        t!("skills_toggle_close").into(),
     ])
 }
 
