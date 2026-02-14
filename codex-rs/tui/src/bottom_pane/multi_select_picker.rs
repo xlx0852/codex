@@ -61,12 +61,8 @@ const ITEM_NAME_TRUNCATE_LEN: usize = 21;
 /// Prefix displayed before the search query (mimics a command prompt).
 const SEARCH_PROMPT_PREFIX: &str = "> ";
 
-fn search_placeholder() -> &'static str {
-    if crate::i18n::is_chinese() {
-        "输入以搜索"
-    } else {
-        "Type to search"
-    }
+fn search_placeholder() -> String {
+    crate::i18n::t!("skills_search_placeholder").to_string()
 }
 
 /// Direction for reordering items in the list.
@@ -578,11 +574,7 @@ impl Renderable for MultiSelectPicker {
                 &rows,
                 &self.state,
                 render_area.height as usize,
-                if crate::i18n::is_chinese() {
-                    "无匹配项"
-                } else {
-                    "no matches"
-                },
+                &crate::i18n::t!("file_search_no_matches"),
             );
         }
 
@@ -736,25 +728,14 @@ impl MultiSelectPickerBuilder {
         }
 
         let instructions = if self.instructions.is_empty() {
-            let (press_label, toggle_label, confirm_label, close_label) =
-                if crate::i18n::is_chinese() {
-                    ("按 ", " 切换；", " 确认并关闭；", " 关闭")
-                } else {
-                    (
-                        "Press ",
-                        " to toggle; ",
-                        " to confirm and close; ",
-                        " to close",
-                    )
-                };
             vec![
-                press_label.into(),
+                crate::i18n::t!("multi_select_press").into(),
                 key_hint::plain(KeyCode::Char(' ')).into(),
-                toggle_label.into(),
+                crate::i18n::t!("multi_select_to_toggle").into(),
                 key_hint::plain(KeyCode::Enter).into(),
-                confirm_label.into(),
+                crate::i18n::t!("multi_select_to_confirm").into(),
                 key_hint::plain(KeyCode::Esc).into(),
-                close_label.into(),
+                crate::i18n::t!("action_close").into(),
             ]
         } else {
             self.instructions

@@ -134,15 +134,9 @@ impl WidgetRef for &FileSearchPopup {
         };
 
         let empty_message = if self.waiting {
-            if crate::i18n::is_chinese() {
-                "加载中..."
-            } else {
-                "loading..."
-            }
-        } else if crate::i18n::is_chinese() {
-            "无匹配项"
+            crate::i18n::t!("status_loading")
         } else {
-            "no matches"
+            crate::i18n::t!("file_search_no_matches")
         };
 
         render_rows(
@@ -151,7 +145,7 @@ impl WidgetRef for &FileSearchPopup {
             &rows_all,
             &self.state,
             MAX_POPUP_ROWS,
-            empty_message,
+            &empty_message,
         );
     }
 }

@@ -28,7 +28,7 @@ use crate::bottom_pane::scroll_state::ScrollState;
 use crate::bottom_pane::selection_popup_common::GenericDisplayRow;
 use crate::bottom_pane::selection_popup_common::measure_rows_height;
 use crate::history_cell;
-use crate::i18n::localized;
+use crate::i18n::{localized, t};
 use crate::render::renderable::Renderable;
 
 use codex_core::protocol::Op;
@@ -38,70 +38,53 @@ use codex_protocol::request_user_input::RequestUserInputResponse;
 use codex_protocol::user_input::TextElement;
 use unicode_width::UnicodeWidthStr;
 
-const NOTES_PLACEHOLDER_EN: &str = "Add notes";
-const ANSWER_PLACEHOLDER_EN: &str = "Type your answer (optional)";
 // Keep in sync with ChatComposer's minimum composer height.
 const MIN_COMPOSER_HEIGHT: u16 = 3;
-const SELECT_OPTION_PLACEHOLDER_EN: &str = "Select an option to add notes";
 pub(super) const TIP_SEPARATOR: &str = " | ";
 pub(super) const DESIRED_SPACERS_BETWEEN_SECTIONS: u16 = 2;
-const OTHER_OPTION_LABEL_EN: &str = "None of the above";
-const OTHER_OPTION_DESCRIPTION_EN: &str = "Optionally, add details in notes (tab).";
-const UNANSWERED_CONFIRM_TITLE_EN: &str = "Submit with unanswered questions?";
-const UNANSWERED_CONFIRM_GO_BACK_EN: &str = "Go back";
-const UNANSWERED_CONFIRM_GO_BACK_DESC_EN: &str = "Return to the first unanswered question.";
-const UNANSWERED_CONFIRM_SUBMIT_EN: &str = "Proceed";
-const UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR_EN: &str = "question";
-const UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL_EN: &str = "questions";
 
-fn notes_placeholder_text() -> &'static str {
-    localized("添加备注", NOTES_PLACEHOLDER_EN)
+fn notes_placeholder_text() -> String {
+    t!("input_notes_placeholder").to_string()
 }
 
-fn answer_placeholder_text() -> &'static str {
-    localized("输入你的回答（可选）", ANSWER_PLACEHOLDER_EN)
+fn answer_placeholder_text() -> String {
+    t!("input_answer_placeholder").to_string()
 }
 
-fn select_option_placeholder_text() -> &'static str {
-    localized("先选择一个选项再添加备注", SELECT_OPTION_PLACEHOLDER_EN)
+fn select_option_placeholder_text() -> String {
+    t!("input_select_option_placeholder").to_string()
 }
 
-fn other_option_label() -> &'static str {
-    localized("以上都不符合", OTHER_OPTION_LABEL_EN)
+fn other_option_label() -> String {
+    t!("input_other_option").to_string()
 }
 
-fn other_option_description() -> &'static str {
-    localized(
-        "可选：在备注里补充细节（Tab）。",
-        OTHER_OPTION_DESCRIPTION_EN,
-    )
+fn other_option_description() -> String {
+    t!("input_other_option_desc").to_string()
 }
 
-pub(super) fn unanswered_confirm_title() -> &'static str {
-    localized("要提交未回答的问题吗？", UNANSWERED_CONFIRM_TITLE_EN)
+pub(super) fn unanswered_confirm_title() -> String {
+    t!("unanswered_confirm_title").to_string()
 }
 
-fn unanswered_confirm_go_back() -> &'static str {
-    localized("返回", UNANSWERED_CONFIRM_GO_BACK_EN)
+fn unanswered_confirm_go_back() -> String {
+    t!("unanswered_confirm_go_back").to_string()
 }
 
-fn unanswered_confirm_go_back_desc() -> &'static str {
-    localized(
-        "返回到第一个未回答的问题。",
-        UNANSWERED_CONFIRM_GO_BACK_DESC_EN,
-    )
+fn unanswered_confirm_go_back_desc() -> String {
+    t!("unanswered_confirm_go_back_desc").to_string()
 }
 
-fn unanswered_confirm_submit() -> &'static str {
-    localized("继续提交", UNANSWERED_CONFIRM_SUBMIT_EN)
+fn unanswered_confirm_submit() -> String {
+    t!("unanswered_confirm_submit").to_string()
 }
 
-fn unanswered_confirm_submit_desc_singular() -> &'static str {
-    localized("个问题", UNANSWERED_CONFIRM_SUBMIT_DESC_SINGULAR_EN)
+fn unanswered_confirm_submit_desc_singular() -> String {
+    t!("unanswered_confirm_question_singular").to_string()
 }
 
-fn unanswered_confirm_submit_desc_plural() -> &'static str {
-    localized("个问题", UNANSWERED_CONFIRM_SUBMIT_DESC_PLURAL_EN)
+fn unanswered_confirm_submit_desc_plural() -> String {
+    t!("unanswered_confirm_question_plural").to_string()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -449,7 +432,7 @@ impl RequestUserInputOverlay {
         self.composer.move_cursor_to_end();
     }
 
-    fn notes_placeholder(&self) -> &'static str {
+    fn notes_placeholder(&self) -> String {
         if self.has_options() && self.selected_option_index().is_none() {
             select_option_placeholder_text()
         } else if self.has_options() {

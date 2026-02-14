@@ -115,6 +115,7 @@ skills_toggle_desc: "开启或关闭技能。更改会自动保存。"
 
 # 实验性功能
 experimental_features: "实验性功能"
+experimental_features_desc: "切换实验性功能。更改会保存到 config.toml。"
 
 # 请求用户输入
 input_submit_answer: "Enter 提交答案"
@@ -189,10 +190,12 @@ input_notes_placeholder: "添加备注"
 input_answer_placeholder: "输入你的回答（可选）"
 input_select_option_placeholder: "先选择一个选项再添加备注"
 input_other_option: "以上都不符合"
+input_other_option_desc: "可选：在备注里补充细节（Tab）。"
 
 # 未回答问题确认
 unanswered_confirm_title: "要提交未回答的问题吗？"
 unanswered_confirm_go_back: "返回"
+unanswered_confirm_go_back_desc: "返回到第一个未回答的问题。"
 unanswered_confirm_submit: "继续提交"
 unanswered_confirm_question_singular: "个问题"
 unanswered_confirm_question_plural: "个问题"
@@ -214,30 +217,36 @@ file_search_no_matches: "无匹配"
 
 # 技能弹窗
 skill_insert: "按 "
-skill_or: " 或 "
-skill_to_insert: " 插入"
+skill_or: " 插入，或 "
+skill_to_close: " 关闭"
 
 # 实验性功能
 experimental_press: "按 "
-experimental_to_select: " 选择"
-experimental_to_save: " 保存"
+experimental_to_select: " 选择，或 "
+experimental_to_save: " 为下次会话保存"
+experimental_no_features: "  当前暂无可用的实验性功能"
 
 # 统一执行页脚
 unified_exec_and: " 和 "
 unified_exec_more: " 等"
+unified_exec_summary: "%{count} 个后台终端运行中 · /ps 查看 · /clean 关闭"
 
 # 列表选择
 list_no_items: "无项目"
 list_create_new: "创建"
+list_default_marker: "（默认）"
+list_current_marker: "（当前）"
+view_all_hint: "[… %{header_height} 行] ctrl + a 查看全部"
 
 # 弹窗常量
 popup_press: "按 "
-popup_to_confirm: " 确认"
+popup_to_confirm: " 确认，或 "
 popup_to_go_back: " 返回"
 
 # 多选
 multi_select_press: "按 "
-multi_select_to_confirm: " 确认"
+multi_select_to_toggle: " 切换；"
+multi_select_to_confirm: " 确认并关闭；"
 multi_select_selected: " 已选择"
 multi_select_create: "创建"
 

@@ -34,19 +34,11 @@ use super::selection_popup_common::render_rows_with_col_width_mode;
 use unicode_width::UnicodeWidthStr;
 
 fn view_all_hint(header_height: u16) -> String {
-    if crate::i18n::is_chinese() {
-        format!("[… {header_height} 行] ctrl + a 查看全部")
-    } else {
-        format!("[… {header_height} lines] ctrl + a view all")
-    }
+    crate::i18n::format_i18n("view_all_hint", &[("header_height", &header_height.to_string())])
 }
 
-fn no_matches_text() -> &'static str {
-    if crate::i18n::is_chinese() {
-        "无匹配项"
-    } else {
-        "no matches"
-    }
+fn no_matches_text() -> String {
+    crate::i18n::t!("file_search_no_matches").to_string()
 }
 
 /// One selectable item in the generic selection list.
@@ -250,19 +242,11 @@ impl ListSelectionView {
                     let prefix = if is_selected { '›' } else { ' ' };
                     let name = item.name.as_str();
                     let marker = if item.is_current {
-                        if crate::i18n::is_chinese() {
-                            "（当前）"
-                        } else {
-                            " (current)"
-                        }
+                        crate::i18n::t!("list_current_marker").to_string()
                     } else if item.is_default {
-                        if crate::i18n::is_chinese() {
-                            "（默认）"
-                        } else {
-                            " (default)"
-                        }
+                        crate::i18n::t!("list_default_marker").to_string()
                     } else {
-                        ""
+                        "".to_string()
                     };
                     let name_with_marker = format!("{name}{marker}");
                     let n = visible_idx + 1;
@@ -634,7 +618,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    no_matches_text(),
+                    &no_matches_text(),
                 ),
                 ColumnWidthMode::AutoAllRows => render_rows_stable_col_widths(
                     render_area,
@@ -642,7 +626,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    no_matches_text(),
+                    &no_matches_text(),
                 ),
                 ColumnWidthMode::Fixed => render_rows_with_col_width_mode(
                     render_area,
@@ -650,7 +634,7 @@ impl Renderable for ListSelectionView {
                     &rows,
                     &self.state,
                     render_area.height as usize,
-                    no_matches_text(),
+                    &no_matches_text(),
                     ColumnWidthMode::Fixed,
                 ),
             };

@@ -115,6 +115,7 @@ skills_toggle_desc: "Turn skills on or off. Your changes are saved automatically
 
 # Experimental features
 experimental_features: "Experimental features"
+experimental_features_desc: "Toggle experimental features. Changes are saved to config.toml."
 
 # Request user input
 input_submit_answer: "enter to submit answer"
@@ -189,11 +190,13 @@ input_notes_placeholder: "Add a note"
 input_answer_placeholder: "Type your answer (optional)"
 input_select_option_placeholder: "Select an option to add a note"
 input_other_option: "None of the above"
+input_other_option_desc: "Optionally, add details in notes (tab)."
 
 # Unanswered confirmation
 unanswered_confirm_title: "Submit with unanswered questions?"
 unanswered_confirm_go_back: "Go back"
-unanswered_confirm_submit: "Continue to submit"
+unanswered_confirm_go_back_desc: "Return to the first unanswered question."
+unanswered_confirm_submit: "Proceed"
 unanswered_confirm_question_singular: " question"
 unanswered_confirm_question_plural: " questions"
 unanswered_confirm_remaining: " remaining"
@@ -213,31 +216,37 @@ file_search_to_confirm: " to confirm"
 file_search_no_matches: "No matches"
 
 # Skill popup
-skill_insert: "Insert"
-skill_or: " or "
-skill_to_insert: " to insert"
+skill_insert: "Press "
+skill_or: " to insert or "
+skill_to_close: " to close"
 
 # Experimental features
 experimental_press: "Press "
-experimental_to_select: " to select"
-experimental_to_save: " to save"
+experimental_to_select: " to select or "
+experimental_to_save: " to save for next conversation"
+experimental_no_features: "  No experimental features available for now"
 
 # Unified exec footer
 unified_exec_and: " and "
 unified_exec_more: " more"
+unified_exec_summary: "%{count} background terminals running · /ps to view · /clean to close"
 
 # List selection
 list_no_items: "No items"
-list_create_new: "Create new"
+list_create_new: "Create"
+list_default_marker: " (default)"
+list_current_marker: " (current)"
+view_all_hint: "[… %{header_height} lines] ctrl + a view all"
 
 # Popup constants
 popup_press: "Press "
-popup_to_confirm: " to confirm"
+popup_to_confirm: " to confirm or "
 popup_to_go_back: " to go back"
 
 # Multi select
 multi_select_press: "Press "
-multi_select_to_confirm: " to confirm"
+multi_select_to_toggle: " to toggle; "
+multi_select_to_confirm: " to confirm and close; "
 multi_select_selected: " selected"
 multi_select_create: "Create"
 

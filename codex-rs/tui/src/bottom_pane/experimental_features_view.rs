@@ -12,7 +12,7 @@ use ratatui::widgets::Widget;
 
 use crate::app_event::AppEvent;
 use crate::app_event_sender::AppEventSender;
-use crate::i18n::localized;
+use crate::i18n::t;
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::RectExt as _;
@@ -53,14 +53,10 @@ impl ExperimentalFeaturesView {
     ) -> Self {
         let mut header = ColumnRenderable::new();
         header.push(Line::from(
-            localized("实验性功能", "Experimental features").bold(),
+            t!("experimental_features").bold(),
         ));
         header.push(Line::from(
-            localized(
-                "切换实验性功能。更改会保存到 config.toml。",
-                "Toggle experimental features. Changes are saved to config.toml.",
-            )
-            .dim(),
+            t!("experimental_features_desc").dim(),
         ));
 
         let mut view = Self {
@@ -267,10 +263,7 @@ impl Renderable for ExperimentalFeaturesView {
                 &rows,
                 &self.state,
                 MAX_POPUP_ROWS,
-                localized(
-                    "  当前暂无可用的实验性功能",
-                    "  No experimental features available for now",
-                ),
+                &t!("experimental_no_features"),
             );
         }
 
@@ -300,16 +293,11 @@ impl Renderable for ExperimentalFeaturesView {
 }
 
 fn experimental_popup_hint_line() -> Line<'static> {
-    let (press_label, select_label, save_label) = if crate::i18n::is_chinese() {
-        ("按 ", " 选择，或 ", " 为下次会话保存")
-    } else {
-        ("Press ", " to select or ", " to save for next conversation")
-    };
     Line::from(vec![
-        press_label.into(),
+        t!("experimental_press").into(),
         key_hint::plain(KeyCode::Char(' ')).into(),
-        select_label.into(),
+        t!("experimental_to_select").into(),
         key_hint::plain(KeyCode::Enter).into(),
-        save_label.into(),
+        t!("experimental_to_save").into(),
     ])
 }

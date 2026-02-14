@@ -11,16 +11,11 @@ pub(crate) const MAX_POPUP_ROWS: usize = 8;
 
 /// Standard footer hint text used by popups.
 pub(crate) fn standard_popup_hint_line() -> Line<'static> {
-    let (press_label, confirm_label, back_label) = if crate::i18n::is_chinese() {
-        ("按 ", " 确认，或 ", " 返回")
-    } else {
-        ("Press ", " to confirm or ", " to go back")
-    };
     Line::from(vec![
-        press_label.into(),
+        crate::i18n::t!("popup_press").into(),
         key_hint::plain(KeyCode::Enter).into(),
-        confirm_label.into(),
+        crate::i18n::t!("popup_to_confirm").into(),
         key_hint::plain(KeyCode::Esc).into(),
-        back_label.into(),
+        crate::i18n::t!("popup_to_go_back").into(),
     ])
 }
