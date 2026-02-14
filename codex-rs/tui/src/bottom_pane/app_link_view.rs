@@ -286,23 +286,18 @@ impl AppLinkView {
     }
 
     fn hint_line(&self) -> Line<'static> {
-        let (use_text, move_text, select_text, close_text) = if crate::i18n::is_chinese() {
-            ("使用 ", " 移动，", " 选择，", " 关闭")
-        } else {
-            ("Use ", " to move, ", " to select, ", " to close")
-        };
         Line::from(vec![
-            use_text.into(),
+            t!("app_link_hint_use").into(),
             key_hint::plain(KeyCode::Tab).into(),
             " / ".into(),
             key_hint::plain(KeyCode::Up).into(),
             " ".into(),
             key_hint::plain(KeyCode::Down).into(),
-            move_text.into(),
+            t!("app_link_hint_move").into(),
             key_hint::plain(KeyCode::Enter).into(),
-            select_text.into(),
+            t!("app_link_hint_select").into(),
             key_hint::plain(KeyCode::Esc).into(),
-            close_text.into(),
+            t!("app_link_hint_close").into(),
         ])
     }
 }

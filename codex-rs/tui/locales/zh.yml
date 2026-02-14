@@ -142,6 +142,10 @@ app_link_no_actions: "无可用操作"
 app_link_use_dollar: "输入 $ 可将此应用插入到提示词中。"
 app_link_new_app_delay: "新安装的应用可能需要几分钟才会出现在 /apps 中。"
 app_link_after_install: "安装后可使用 $ 将此应用插入到提示词中。"
+app_link_hint_use: "使用 "
+app_link_hint_move: " 移动，"
+app_link_hint_select: " 选择，"
+app_link_hint_close: " 关闭"
 
 # 计划实施
 plan_implement_title: "执行这个计划吗？"

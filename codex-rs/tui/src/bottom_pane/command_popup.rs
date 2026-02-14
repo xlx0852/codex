@@ -7,7 +7,7 @@ use super::scroll_state::ScrollState;
 use super::selection_popup_common::GenericDisplayRow;
 use super::selection_popup_common::render_rows;
 use super::slash_commands;
-use crate::i18n::localized;
+use crate::i18n::t;
 use crate::render::Insets;
 use crate::render::RectExt;
 use crate::slash_command::SlashCommand;
@@ -207,7 +207,7 @@ impl CommandPopup {
                     CommandItem::UserPrompt(i) => {
                         let prompt = &self.prompts[i];
                         let description = prompt.description.clone().unwrap_or_else(|| {
-                            localized("发送已保存提示词", "send saved prompt").to_string()
+                            t!("command_send_saved_prompt").to_string()
                         });
                         (
                             format!("/{PROMPTS_CMD_PREFIX}:{}", prompt.name),
@@ -432,7 +432,7 @@ mod tests {
         let description = rows.first().and_then(|row| row.description.as_deref());
         assert_eq!(
             description,
-            Some(localized("发送已保存提示词", "send saved prompt"))
+            Some(&t!("command_send_saved_prompt"))
         );
     }
 

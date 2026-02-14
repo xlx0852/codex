@@ -142,6 +142,10 @@ app_link_no_actions: "No actions"
 app_link_use_dollar: "Use $ to insert this app into the prompt."
 app_link_new_app_delay: "Newly installed apps can take a few minutes to appear in /apps."
 app_link_after_install: "After installed, use $ to insert this app into the prompt."
+app_link_hint_use: "Use "
+app_link_hint_move: " to move, "
+app_link_hint_select: " to select, "
+app_link_hint_close: " to close"
 
 # Plan implementation
 plan_implement_title: "Implement this plan?"
