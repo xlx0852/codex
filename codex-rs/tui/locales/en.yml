@@ -8,6 +8,9 @@ trust_directory_you_are_in: "You are in "
 trust_directory_description: "Codex will execute commands in this directory. Only proceed if you trust the code."
 trust_yes_continue: "Yes, continue"
 trust_no_quit: "No, quit"
+cwd_action_resume: "resume"
+cwd_action_fork: "fork"
+trust_press_label: "Press "
 trust_press_to_continue: " to continue"
 trust_press_to_continue_create_sandbox: " to continue and create a sandbox..."
 
@@ -74,6 +77,7 @@ approval_to_cancel: " to cancel"
 # Status indicators
 status_working: "Working"
 status_loading: "loading"
+status_interrupt_hint: " to interrupt)"
 
 # Feedback
 feedback_how_was_this: "How was this?"

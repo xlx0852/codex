@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::i18n::localized;
+use crate::i18n::{localized, t};
 use crate::key_hint;
 use crate::render::Insets;
 use crate::render::renderable::ColumnRenderable;
@@ -31,17 +31,10 @@ pub(crate) enum CwdPromptAction {
 }
 
 impl CwdPromptAction {
-    fn verb(self) -> &'static str {
-        if crate::i18n::is_chinese() {
-            match self {
-                CwdPromptAction::Resume => "继续",
-                CwdPromptAction::Fork => "分叉",
-            }
-        } else {
-            match self {
-                CwdPromptAction::Resume => "resume",
-                CwdPromptAction::Fork => "fork",
-            }
+    fn verb(self) -> String {
+        match self {
+            CwdPromptAction::Resume => t!("cwd_action_resume").to_string(),
+            CwdPromptAction::Fork => t!("cwd_action_fork").to_string(),
         }
     }
 }

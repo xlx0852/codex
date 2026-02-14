@@ -85,14 +85,9 @@ impl WidgetRef for &TrustDirectoryWidget {
             column.push("");
         }
 
-        let press_label = if crate::i18n::is_chinese() {
-            "按 "
-        } else {
-            "Press "
-        };
         column.push(
             Line::from(vec![
-                press_label.dim(),
+                crate::t!("trust_press_label").dim(),
                 key_hint::plain(KeyCode::Enter).into(),
                 if self.show_windows_create_sandbox_hint {
                     crate::t!("trust_press_to_continue_create_sandbox").dim()

@@ -8,6 +8,9 @@ trust_directory_you_are_in: "你当前位于 "
 trust_directory_description: "Codex 将在此目录中执行命令。仅当您信任此代码时才继续。"
 trust_yes_continue: "是，继续"
 trust_no_quit: "否，退出"
+cwd_action_resume: "继续"
+cwd_action_fork: "分叉"
+trust_press_label: "按 "
 trust_press_to_continue: " 继续"
 trust_press_to_continue_create_sandbox: " 继续并创建沙箱..."
 
@@ -74,6 +77,7 @@ approval_to_cancel: " 取消"
 # 状态指示器
 status_working: "处理中"
 status_loading: "加载中"
+status_interrupt_hint: " 中断)"
 
 # 反馈
 feedback_how_was_this: "这次结果怎么样？"

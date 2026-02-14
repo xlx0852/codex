@@ -74,11 +74,7 @@ impl StatusIndicatorWidget {
         animations_enabled: bool,
     ) -> Self {
         Self {
-            header: if crate::i18n::is_chinese() {
-                "处理中".to_string()
-            } else {
-                "Working".to_string()
-            },
+            header: crate::i18n::t!("status_working").to_string(),
             details: None,
             inline_message: None,
             show_interrupt_hint: true,
@@ -239,19 +235,11 @@ impl Renderable for StatusIndicatorWidget {
         }
         spans.push(" ".into());
         if self.show_interrupt_hint {
-            if crate::i18n::is_chinese() {
-                spans.extend(vec![
-                    format!("({pretty_elapsed} • 按 ").dim(),
-                    key_hint::plain(KeyCode::Esc).into(),
-                    " 中断)".dim(),
-                ]);
-            } else {
-                spans.extend(vec![
-                    format!("({pretty_elapsed} • ").dim(),
-                    key_hint::plain(KeyCode::Esc).into(),
-                    " to interrupt)".dim(),
-                ]);
-            }
+            spans.extend(vec![
+                format!("({pretty_elapsed} • ").dim(),
+                key_hint::plain(KeyCode::Esc).into(),
+                crate::i18n::t!("status_interrupt_hint").dim(),
+            ]);
         } else {
             spans.push(format!("({pretty_elapsed})").dim());
         }

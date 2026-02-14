@@ -40,7 +40,7 @@ use super::rate_limits::compose_rate_limit_data;
 use super::rate_limits::compose_rate_limit_data_many;
 use super::rate_limits::format_status_limit_summary;
 use super::rate_limits::render_status_limit_progress_bar;
-use crate::i18n::{localized, t};
+use crate::i18n::localized;
 use crate::wrapping::RtOptions;
 use crate::wrapping::word_wrap_lines;
 use codex_core::AuthManager;
