@@ -124,6 +124,9 @@ input_interrupt: "esc to interrupt"
 input_no_choices: "No choices"
 input_no_questions: "No questions"
 input_no_options: "No options"
+question_progress: "Question {idx}/{total}"
+unanswered_count: "{unanswered} unanswered"
+option_progress: "option {selected}/{total}"
 
 # Commands
 command_send_saved_prompt: "send saved prompt"
@@ -200,6 +203,7 @@ unanswered_confirm_submit: "Proceed"
 unanswered_confirm_question_singular: " question"
 unanswered_confirm_question_plural: " questions"
 unanswered_confirm_remaining: " remaining"
+unanswered_remaining: "{unanswered} questions remaining"
 
 # Skills toggle
 skills_enabled: "Enabled"

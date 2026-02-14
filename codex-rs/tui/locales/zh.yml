@@ -124,6 +124,9 @@ input_interrupt: "Esc 中断"
 input_no_choices: "无可选项"
 input_no_questions: "暂无问题"
 input_no_options: "无可选项"
+question_progress: "问题 {idx}/{total}"
+unanswered_count: "{unanswered} 未回答"
+option_progress: "选项 {selected}/{total}"
 
 # 命令
 command_send_saved_prompt: "发送已保存提示词"
@@ -200,6 +203,7 @@ unanswered_confirm_submit: "继续提交"
 unanswered_confirm_question_singular: "个问题"
 unanswered_confirm_question_plural: "个问题"
 unanswered_confirm_remaining: " 个未回答"
+unanswered_remaining: "仍有 {unanswered} 个问题未回答"
 
 # 技能开关
 skills_enabled: "已启用"

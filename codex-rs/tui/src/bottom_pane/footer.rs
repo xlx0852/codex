@@ -108,60 +108,30 @@ enum FooterTextKey {
     ContextUsed,
 }
 
-fn footer_text_for_language(key: FooterTextKey, is_chinese: bool) -> &'static str {
-    if is_chinese {
-        match key {
-            FooterTextKey::FooterForCommands => " 查看命令",
-            FooterTextKey::FooterForShellCommands => " 查看 shell 命令",
-            FooterTextKey::FooterForNewline => " 换行",
-            FooterTextKey::FooterToQueueMessage => " 排队消息",
-            FooterTextKey::FooterToQueue => " 排队",
-            FooterTextKey::FooterForFilePaths => " 选择文件路径",
-            FooterTextKey::FooterToPasteImages => " 粘贴图片",
-            FooterTextKey::FooterToEditInExternalEditor => " 在外部编辑器中编辑",
-            FooterTextKey::FooterToEditPreviousMessage => " 编辑上一条消息",
-            FooterTextKey::FooterToExit => " 退出",
-            FooterTextKey::FooterToViewTranscript => " 查看对话记录",
-            FooterTextKey::FooterToChangeMode => " 切换模式",
-            FooterTextKey::FooterForShortcuts => " 查看快捷键",
-            FooterTextKey::FooterAgainToQuit => " 再次按下退出",
-            FooterTextKey::FooterAgainToEditPrevious => " 再次按下编辑上一条消息",
-            FooterTextKey::FooterShiftTabToCycle => "shift+tab 切换",
-            FooterTextKey::ModePlan => "规划模式",
-            FooterTextKey::ModePairProgramming => "结对编程模式",
-            FooterTextKey::ModeExecute => "执行模式",
-            FooterTextKey::ContextPercentLeft => "% 上下文剩余",
-            FooterTextKey::ContextUsed => "已使用",
-        }
-    } else {
-        match key {
-            FooterTextKey::FooterForCommands => " for commands",
-            FooterTextKey::FooterForShellCommands => " for shell commands",
-            FooterTextKey::FooterForNewline => " for newline",
-            FooterTextKey::FooterToQueueMessage => " to queue message",
-            FooterTextKey::FooterToQueue => " to queue",
-            FooterTextKey::FooterForFilePaths => " for file paths",
-            FooterTextKey::FooterToPasteImages => " to paste images",
-            FooterTextKey::FooterToEditInExternalEditor => " to edit in external editor",
-            FooterTextKey::FooterToEditPreviousMessage => " to edit previous message",
-            FooterTextKey::FooterToExit => " to exit",
-            FooterTextKey::FooterToViewTranscript => " to view transcript",
-            FooterTextKey::FooterToChangeMode => " to change mode",
-            FooterTextKey::FooterForShortcuts => " for shortcuts",
-            FooterTextKey::FooterAgainToQuit => " again to quit",
-            FooterTextKey::FooterAgainToEditPrevious => " again to edit previous message",
-            FooterTextKey::FooterShiftTabToCycle => "shift+tab to cycle",
-            FooterTextKey::ModePlan => "Plan mode",
-            FooterTextKey::ModePairProgramming => "Pair Programming mode",
-            FooterTextKey::ModeExecute => "Execute mode",
-            FooterTextKey::ContextPercentLeft => "% context left",
-            FooterTextKey::ContextUsed => "used",
-        }
-    }
-}
-
 fn footer_text(key: FooterTextKey) -> String {
-    footer_text_for_language(key, crate::i18n::is_chinese()).to_string()
+    match key {
+        FooterTextKey::FooterForCommands => crate::i18n::t!("footer_for_commands").to_string(),
+        FooterTextKey::FooterForShellCommands => crate::i18n::t!("footer_for_shell_commands").to_string(),
+        FooterTextKey::FooterForNewline => crate::i18n::t!("footer_for_newline").to_string(),
+        FooterTextKey::FooterToQueueMessage => crate::i18n::t!("footer_to_queue_message").to_string(),
+        FooterTextKey::FooterToQueue => crate::i18n::t!("footer_to_queue").to_string(),
+        FooterTextKey::FooterForFilePaths => crate::i18n::t!("footer_for_file_paths").to_string(),
+        FooterTextKey::FooterToPasteImages => crate::i18n::t!("footer_to_paste_images").to_string(),
+        FooterTextKey::FooterToEditInExternalEditor => crate::i18n::t!("footer_to_edit_in_external_editor").to_string(),
+        FooterTextKey::FooterToEditPreviousMessage => crate::i18n::t!("footer_to_edit_previous_message").to_string(),
+        FooterTextKey::FooterToExit => crate::i18n::t!("footer_to_exit").to_string(),
+        FooterTextKey::FooterToViewTranscript => crate::i18n::t!("footer_to_view_transcript").to_string(),
+        FooterTextKey::FooterToChangeMode => crate::i18n::t!("footer_to_change_mode").to_string(),
+        FooterTextKey::FooterForShortcuts => crate::i18n::t!("footer_for_shortcuts").to_string(),
+        FooterTextKey::FooterAgainToQuit => crate::i18n::t!("footer_again_to_quit").to_string(),
+        FooterTextKey::FooterAgainToEditPrevious => crate::i18n::t!("footer_again_to_edit_previous").to_string(),
+        FooterTextKey::FooterShiftTabToCycle => crate::i18n::t!("footer_shift_tab_to_cycle").to_string(),
+        FooterTextKey::ModePlan => crate::i18n::t!("mode_plan").to_string(),
+        FooterTextKey::ModePairProgramming => crate::i18n::t!("mode_pair_programming").to_string(),
+        FooterTextKey::ModeExecute => crate::i18n::t!("mode_execute").to_string(),
+        FooterTextKey::ContextPercentLeft => crate::i18n::t!("context_percent_left").to_string(),
+        FooterTextKey::ContextUsed => crate::i18n::t!("context_used").to_string(),
+    }
 }
 
 impl CollaborationModeIndicator {
