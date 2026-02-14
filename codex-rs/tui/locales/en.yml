@@ -135,8 +135,13 @@ app_link_back: "Back"
 app_link_install: "Install on ChatGPT"
 app_link_already_installed: "I already Installed it"
 app_link_finish_setup: "Finish App Setup"
+app_link_setup_desc1: "Complete app setup on ChatGPT in the browser window that just opened."
+app_link_setup_desc2: "Sign in there if needed, then return here and select \"I already Installed it\"."
 app_link_setup_url: "Setup URL:"
 app_link_no_actions: "No actions"
+app_link_use_dollar: "Use $ to insert this app into the prompt."
+app_link_new_app_delay: "Newly installed apps can take a few minutes to appear in /apps."
+app_link_after_install: "After installed, use $ to insert this app into the prompt."
 
 # Plan implementation
 plan_implement_title: "Implement this plan?"

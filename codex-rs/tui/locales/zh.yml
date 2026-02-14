@@ -135,8 +135,13 @@ app_link_back: "返回"
 app_link_install: "在 ChatGPT 中安装"
 app_link_already_installed: "我已经安装好了"
 app_link_finish_setup: "完成应用设置"
+app_link_setup_desc1: "请在刚刚打开的浏览器窗口中完成 ChatGPT 里的应用设置。"
+app_link_setup_desc2: "如有需要请先登录，然后返回这里选择\"我已经安装好了\"\u3002"
 app_link_setup_url: "设置链接："
 app_link_no_actions: "无可用操作"
+app_link_use_dollar: "输入 $ 可将此应用插入到提示词中。"
+app_link_new_app_delay: "新安装的应用可能需要几分钟才会出现在 /apps 中。"
+app_link_after_install: "安装后可使用 $ 将此应用插入到提示词中。"
 
 # 计划实施
 plan_implement_title: "执行这个计划吗？"
