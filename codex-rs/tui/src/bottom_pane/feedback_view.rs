@@ -18,7 +18,7 @@ use crate::app_event::AppEvent;
 use crate::app_event::FeedbackCategory;
 use crate::app_event_sender::AppEventSender;
 use crate::history_cell;
-use crate::i18n::localized;
+use crate::i18n::t;
 use crate::render::renderable::Renderable;
 use codex_core::protocol::SessionSource;
 
@@ -108,35 +108,23 @@ impl FeedbackNoteView {
         match result {
             Ok(()) => {
                 let prefix = if self.include_logs {
-                    localized("• 反馈已上传。", "• Feedback uploaded.")
+                    t!("feedback_uploaded")
                 } else {
-                    localized(
-                        "• 反馈已记录（未附带日志）。",
-                        "• Feedback recorded (no logs).",
-                    )
+                    t!("feedback_uploaded_no_logs")
                 };
                 let issue_url =
                     issue_url_for_category(self.category, &thread_id, self.feedback_audience);
                 let mut lines = vec![Line::from(match issue_url.as_ref() {
                     Some(_) if self.feedback_audience == FeedbackAudience::OpenAiEmployee => {
-                        format!(
-                            "{prefix}{}",
-                            localized(
-                                " 请在 #codex-feedback 中反馈：",
-                                " Please report this in #codex-feedback:"
-                            )
-                        )
+                        format!("{prefix}{}", t!("feedback_report_in_slack"))
                     }
                     Some(_) => format!(
                         "{prefix}{}",
-                        localized(
-                            " 请使用以下链接提交 issue：",
-                            " Please open an issue using the following URL:"
-                        )
+                        t!("feedback_open_issue")
                     ),
                     None => format!(
                         "{prefix}{}",
-                        localized(" 感谢你的反馈！", " Thanks for the feedback!")
+                        t!("feedback_thanks")
                     ),
                 })];
                 match issue_url {
@@ -145,10 +133,7 @@ impl FeedbackNoteView {
                             "".into(),
                             Line::from(vec!["  ".into(), url.cyan().underlined()]),
                             "".into(),
-                            Line::from(localized(
-                                "  请分享此链接，并补充你遇到的问题：",
-                                "  Share this and add some info about your problem:",
-                            )),
+                            Line::from(t!("feedback_share_link")),
                             Line::from(vec![
                                 "    ".into(),
                                 format!("https://go/codex-feedback/{thread_id}").bold(),
@@ -161,13 +146,9 @@ impl FeedbackNoteView {
                             Line::from(vec!["  ".into(), url.cyan().underlined()]),
                             "".into(),
                             Line::from(vec![
-                                localized(
-                                    "  或在已有 issue 中附上线程 ID ",
-                                    "  Or mention your thread ID ",
-                                )
-                                .into(),
+                                t!("feedback_thread_id").into(),
                                 std::mem::take(&mut thread_id).bold(),
-                                localized("。", " in an existing issue.").into(),
+                                t!("feedback_in_existing_issue").into(),
                             ]),
                         ]);
                     }
@@ -175,7 +156,7 @@ impl FeedbackNoteView {
                         lines.extend([
                             "".into(),
                             Line::from(vec![
-                                localized("  线程 ID：", "  Thread ID: ").into(),
+                                t!("feedback_thread_id").into(),
                                 std::mem::take(&mut thread_id).bold(),
                             ]),
                         ]);
@@ -189,7 +170,7 @@ impl FeedbackNoteView {
                 self.app_event_tx.send(AppEvent::InsertHistoryCell(Box::new(
                     history_cell::new_error_event(format!(
                         "{}: {e}",
-                        localized("上传反馈失败", "Failed to upload feedback")
+                        t!("feedback_failed")
                     )),
                 )));
             }
@@ -371,36 +352,20 @@ fn gutter() -> Span<'static> {
 fn feedback_title_and_placeholder(category: FeedbackCategory) -> (String, String) {
     match category {
         FeedbackCategory::BadResult => (
-            localized("请补充说明（结果不理想）", "Tell us more (bad result)").to_string(),
-            localized(
-                "（可选）写一段简短描述，帮助我们进一步改进",
-                "(optional) Write a short description to help us further",
-            )
-            .to_string(),
+            t!("feedback_tell_us_more_bad").to_string(),
+            t!("feedback_optional_description").to_string(),
         ),
         FeedbackCategory::GoodResult => (
-            localized("请补充说明（结果很好）", "Tell us more (good result)").to_string(),
-            localized(
-                "（可选）写一段简短描述，帮助我们进一步改进",
-                "(optional) Write a short description to help us further",
-            )
-            .to_string(),
+            t!("feedback_tell_us_more_good").to_string(),
+            t!("feedback_optional_description").to_string(),
         ),
         FeedbackCategory::Bug => (
-            localized("请补充说明（Bug）", "Tell us more (bug)").to_string(),
-            localized(
-                "（可选）写一段简短描述，帮助我们进一步改进",
-                "(optional) Write a short description to help us further",
-            )
-            .to_string(),
+            t!("feedback_tell_us_more_bug").to_string(),
+            t!("feedback_optional_description").to_string(),
         ),
         FeedbackCategory::Other => (
-            localized("请补充说明（其他）", "Tell us more (other)").to_string(),
-            localized(
-                "（可选）写一段简短描述，帮助我们进一步改进",
-                "(optional) Write a short description to help us further",
-            )
-            .to_string(),
+            t!("feedback_tell_us_more_other").to_string(),
+            t!("feedback_optional_description").to_string(),
         ),
     }
 }
@@ -448,42 +413,30 @@ pub(crate) fn feedback_selection_params(
     app_event_tx: AppEventSender,
 ) -> super::SelectionViewParams {
     super::SelectionViewParams {
-        title: Some(localized("这次结果怎么样？", "How was this?").to_string()),
+        title: Some(t!("feedback_how_was_this").to_string()),
         items: vec![
             make_feedback_item(
                 app_event_tx.clone(),
-                localized("bug", "bug"),
-                localized(
-                    "崩溃、报错、卡住，或界面/行为异常。",
-                    "Crash, error message, hang, or broken UI/behavior.",
-                ),
+                &t!("feedback_bug"),
+                &t!("feedback_bug_desc"),
                 FeedbackCategory::Bug,
             ),
             make_feedback_item(
                 app_event_tx.clone(),
-                localized("结果不理想", "bad result"),
-                localized(
-                    "输出偏题、错误、不完整，或不够有帮助。",
-                    "Output was off-target, incorrect, incomplete, or unhelpful.",
-                ),
+                &t!("feedback_bad_result"),
+                &t!("feedback_bad_result_desc"),
                 FeedbackCategory::BadResult,
             ),
             make_feedback_item(
                 app_event_tx.clone(),
-                localized("结果很好", "good result"),
-                localized(
-                    "结果有帮助、准确、高质量，值得点赞。",
-                    "Helpful, correct, high‑quality, or delightful result worth celebrating.",
-                ),
+                &t!("feedback_good_result"),
+                &t!("feedback_good_result_desc"),
                 FeedbackCategory::GoodResult,
             ),
             make_feedback_item(
                 app_event_tx,
-                localized("其他", "other"),
-                localized(
-                    "速度慢、功能建议、交互体验反馈，或其他问题。",
-                    "Slowness, feature suggestion, UX feedback, or anything else.",
-                ),
+                &t!("feedback_other"),
+                &t!("feedback_other_desc"),
                 FeedbackCategory::Other,
             ),
         ],
@@ -494,17 +447,14 @@ pub(crate) fn feedback_selection_params(
 /// Build the selection popup params shown when feedback is disabled.
 pub(crate) fn feedback_disabled_params() -> super::SelectionViewParams {
     super::SelectionViewParams {
-        title: Some(localized("反馈功能已禁用", "Sending feedback is disabled").to_string()),
+        title: Some(t!("feedback_disabled").to_string()),
         subtitle: Some(
-            localized(
-                "该操作已被配置禁用。",
-                "This action is disabled by configuration.",
-            )
+            t!("feedback_disabled_desc")
             .to_string(),
         ),
         footer_hint: Some(standard_popup_hint_line()),
         items: vec![super::SelectionItem {
-            name: localized("关闭", "Close").to_string(),
+            name: t!("action_close").to_string(),
             dismiss_on_select: true,
             ..Default::default()
         }],
@@ -561,9 +511,9 @@ pub(crate) fn feedback_upload_consent_params(
 
     // Build header listing files that would be sent if user consents.
     let mut header_lines: Vec<Box<dyn crate::render::renderable::Renderable>> = vec![
-        Line::from(localized("上传日志吗？", "Upload logs?").bold()).into(),
+        Line::from(t!("feedback_upload_logs").bold()).into(),
         Line::from("").into(),
-        Line::from(localized("将发送以下文件：", "The following files will be sent:").dim()).into(),
+        Line::from(t!("feedback_files_will_be_sent").dim()).into(),
         Line::from(vec!["  • ".into(), "codex-logs.log".into()]).into(),
     ];
     if let Some(path) = rollout_path.as_deref()
@@ -576,26 +526,18 @@ pub(crate) fn feedback_upload_consent_params(
         footer_hint: Some(standard_popup_hint_line()),
         items: vec![
             super::SelectionItem {
-                name: localized("是", "Yes").to_string(),
+                name: t!("action_yes").to_string(),
                 description: Some(
-                    localized(
-                        "将当前 Codex 会话日志分享给团队用于排查问题。",
-                        "Share the current Codex session logs with the team for troubleshooting.",
-                    )
-                    .to_string(),
+                    t!("feedback_share_logs_desc").to_string(),
                 ),
                 actions: vec![yes_action],
                 dismiss_on_select: true,
                 ..Default::default()
             },
             super::SelectionItem {
-                name: localized("否", "No").to_string(),
+                name: t!("action_no").to_string(),
                 description: Some(
-                    localized(
-                        "不分享日志继续。你仍然可以填写可选说明。",
-                        "Continue without sharing logs. You can still include an optional note.",
-                    )
-                    .to_string(),
+                    t!("feedback_no_logs_desc").to_string(),
                 ),
                 actions: vec![no_action],
                 dismiss_on_select: true,
