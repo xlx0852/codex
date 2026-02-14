@@ -151,11 +151,6 @@ use tokio::task::JoinHandle;
 use tracing::debug;
 use tracing::warn;
 
-const DEFAULT_MODEL_DISPLAY_NAME: &str = "loading";
-const PLAN_IMPLEMENTATION_TITLE: &str = "Implement this plan?";
-const PLAN_IMPLEMENTATION_YES: &str = "Yes, implement this plan";
-const PLAN_IMPLEMENTATION_NO: &str = "No, stay in Plan mode";
-const PLAN_IMPLEMENTATION_CODING_MESSAGE: &str = "Implement the plan.";
 const CONNECTORS_SELECTION_VIEW_ID: &str = "connectors-selection";
 
 use crate::app_event::AppEvent;
@@ -223,7 +218,7 @@ mod skills;
 use self::skills::collect_tool_mentions;
 use self::skills::find_app_mentions;
 use self::skills::find_skill_mentions_with_tool_mentions;
-use crate::i18n::localized;
+use crate::i18n::{localized, t};
 use crate::mention_codec::LinkedMention;
 use crate::mention_codec::encode_history_mentions;
 use crate::streaming::chunking::AdaptiveChunkingPolicy;
@@ -248,39 +243,38 @@ use codex_utils_approval_presets::builtin_approval_presets;
 use strum::IntoEnumIterator;
 
 const DEFAULT_OPENAI_BASE_URL: &str = "https://api.openai.com/v1";
-const USER_SHELL_COMMAND_HELP_TITLE: &str = "Prefix a command with ! to run it locally";
-const USER_SHELL_COMMAND_HELP_HINT: &str = "Example: !ls";
 
-fn working_status_label() -> &'static str {
-    localized("处理中", "Working")
+
+fn working_status_label() -> String {
+    t!("status_working").to_string()
 }
 
-fn default_model_display_name() -> &'static str {
-    localized("加载中", DEFAULT_MODEL_DISPLAY_NAME)
+fn default_model_display_name() -> String {
+    t!("status_loading").to_string()
 }
 
-fn plan_implementation_title() -> &'static str {
-    localized("执行这个计划吗？", PLAN_IMPLEMENTATION_TITLE)
+fn plan_implementation_title() -> String {
+    t!("plan_implement_title").to_string()
 }
 
-fn plan_implementation_yes() -> &'static str {
-    localized("是，执行这个计划", PLAN_IMPLEMENTATION_YES)
+fn plan_implementation_yes() -> String {
+    t!("plan_implement_yes").to_string()
 }
 
-fn plan_implementation_no() -> &'static str {
-    localized("否，继续规划模式", PLAN_IMPLEMENTATION_NO)
+fn plan_implementation_no() -> String {
+    t!("plan_implement_no").to_string()
 }
 
-fn plan_implementation_coding_message() -> &'static str {
-    localized("请执行这个计划。", PLAN_IMPLEMENTATION_CODING_MESSAGE)
+fn plan_implementation_coding_message() -> String {
+    t!("plan_implement_message").to_string()
 }
 
-fn user_shell_command_help_title() -> &'static str {
-    localized("在命令前加 ! 即可在本地执行", USER_SHELL_COMMAND_HELP_TITLE)
+fn user_shell_command_help_title() -> String {
+    t!("shell_command_help_title").to_string()
 }
 
-fn user_shell_command_help_hint() -> &'static str {
-    localized("例如：!ls", USER_SHELL_COMMAND_HELP_HINT)
+fn user_shell_command_help_hint() -> String {
+    t!("shell_command_help_hint").to_string()
 }
 
 fn placeholder_options() -> &'static [&'static str] {
@@ -4538,7 +4532,7 @@ impl ChatWidget {
             rate_limit_snapshots.as_slice(),
             self.plan_type,
             Local::now(),
-            self.model_display_name(),
+            &self.model_display_name(),
             collaboration_mode,
             reasoning_effort_override,
         ));
@@ -6749,12 +6743,12 @@ impl ChatWidget {
         self.sync_image_paste_enabled();
     }
 
-    fn model_display_name(&self) -> &str {
+    fn model_display_name(&self) -> String {
         let model = self.current_model();
         if model.is_empty() {
-            DEFAULT_MODEL_DISPLAY_NAME
+            default_model_display_name()
         } else {
-            model
+            model.to_string()
         }
     }
 
@@ -6863,7 +6857,7 @@ impl ChatWidget {
     fn placeholder_session_header_cell(config: &Config) -> Box<dyn HistoryCell> {
         let placeholder_style = Style::default().add_modifier(Modifier::DIM | Modifier::ITALIC);
         Box::new(history_cell::SessionHeaderHistoryCell::new_with_style(
-            DEFAULT_MODEL_DISPLAY_NAME.to_string(),
+            default_model_display_name(),
             placeholder_style,
             None,
             config.cwd.clone(),

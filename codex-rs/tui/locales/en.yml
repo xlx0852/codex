@@ -49,3 +49,114 @@ tooltip_paid_non_mac: "*New* 2x rate limits until *April 2nd*."
 tooltip_other_mac: "*New* Build faster with the **Codex App**. Run 'codex app' or visit https://chatgpt.com/codex?app-landing-page=true"
 tooltip_other_non_mac: "*New* Build faster with Codex."
 tooltip_free_go: "*New* Codex is included in your plan for free through *March 2nd* – let's build together."
+
+# Approval overlay
+approval_run_command: "Would you like to run the following command?"
+approval_approve_host: "Do you want to approve access to \"%{host}\"?"
+mcp_needs_approval: "%{server_name} needs your approval."
+approval_press_confirm: "Press "
+approval_to_confirm: " to confirm or "
+approval_to_cancel: " to cancel"
+approval_apply_edits: "Would you like to make the following edits?"
+approval_reason: "Reason: "
+approval_server: "Server: "
+approval_yes_proceed: "Yes, proceed"
+approval_yes_dont_ask_prefix: "Yes, and don't ask again for commands that start with `%{prefix}`"
+approval_no_tell_codex: "No, and tell Codex what to do differently"
+approval_yes_provide_info: "Yes, provide the requested info"
+approval_no_continue_without: "No, but continue without it"
+approval_cancel_request: "Cancel this request"
+patch_yes_dont_ask_files: "Yes, and don't ask again for these files"
+approval_press_confirm: "Press "
+approval_to_confirm: " to confirm or "
+approval_to_cancel: " to cancel"
+
+# Status indicators
+status_working: "Working"
+status_loading: "loading"
+
+# Feedback
+feedback_how_was_this: "How was this?"
+feedback_tell_us_more_bad: "Tell us more (bad result)"
+feedback_tell_us_more_good: "Tell us more (good result)"
+feedback_tell_us_more_bug: "Tell us more (bug)"
+feedback_tell_us_more_other: "Tell us more (other)"
+feedback_bug: "bug"
+feedback_bad_result: "bad result"
+feedback_good_result: "good result"
+feedback_other: "other"
+feedback_close: "Close"
+feedback_upload_logs: "Upload logs?"
+feedback_files_will_be_sent: "The following files will be sent:"
+feedback_yes: "Yes"
+feedback_no: "No"
+feedback_uploaded: "• Feedback uploaded."
+feedback_thanks: " Thanks for the feedback!"
+feedback_failed: "Failed to upload feedback"
+feedback_disabled: "Sending feedback is disabled"
+
+# Skills
+skills_enable_disable: "Enable/Disable Skills"
+skills_search_placeholder: "Type to search skills"
+
+# Experimental features
+experimental_features: "Experimental features"
+
+# Request user input
+input_submit_answer: "enter to submit answer"
+input_submit_all: "enter to submit all"
+input_interrupt: "esc to interrupt"
+input_no_choices: "No choices"
+input_no_questions: "No questions"
+input_no_options: "No options"
+
+# Commands
+command_send_saved_prompt: "send saved prompt"
+
+# App link
+app_link_manage: "Manage on ChatGPT"
+app_link_disable: "Disable app"
+app_link_enable: "Enable app"
+app_link_back: "Back"
+app_link_install: "Install on ChatGPT"
+app_link_already_installed: "I already Installed it"
+app_link_finish_setup: "Finish App Setup"
+app_link_setup_url: "Setup URL:"
+app_link_no_actions: "No actions"
+
+# Plan implementation
+plan_implement_title: "Implement this plan?"
+plan_implement_yes: "Yes, implement this plan"
+plan_implement_no: "No, stay in Plan mode"
+plan_implement_message: "Implement the plan."
+
+# User shell command
+shell_command_help_title: "Prefix a command with ! to run it locally"
+shell_command_help_hint: "Example: !ls"
+
+# Rate limits
+rate_limit_weekly: "weekly"
+rate_limit_monthly: "monthly"
+rate_limit_annual: "annual"
+rate_limit_warning: "Heads up, you have less than %{percent}% of your %{limit} limit left. Run /status for a breakdown."
+
+# WebSocket
+websocket_timing: "WebSocket timing: %{label}"
+
+# Thread
+thread_forked_from: "Thread forked from "
+
+# Git
+status_git_branch: "Git branch"
+
+# Time units
+time_hours: "%{hours}h"
+
+# Generic actions
+action_yes: "Yes"
+action_no: "No"
+action_continue: "Continue"
+action_cancel: "Cancel"
+action_back: "Back"
+action_close: "Close"
+action_quit: "Quit"

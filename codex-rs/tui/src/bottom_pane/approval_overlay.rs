@@ -11,7 +11,7 @@ use crate::bottom_pane::list_selection_view::SelectionViewParams;
 use crate::diff_render::DiffSummary;
 use crate::exec_command::strip_bash_lc_and_escape;
 use crate::history_cell;
-use crate::i18n::localized;
+use crate::i18n::{format_i18n, t};
 use crate::key_hint;
 use crate::key_hint::KeyBinding;
 use crate::render::highlight::highlight_bash_to_lines;
@@ -120,40 +120,19 @@ impl ApprovalOverlay {
                     network_approval_context.as_ref(),
                 ),
                 network_approval_context.as_ref().map_or_else(
-                    || localized(
-                        "是否执行以下命令？",
-                        "Would you like to run the following command?",
-                    ).to_string(),
+                    || t!("approval_run_command").to_string(),
                     |network_approval_context| {
-                        if crate::i18n::is_chinese() {
-                            format!(
-                                "是否允许访问 \"{}\"？",
-                                network_approval_context.host
-                            )
-                        } else {
-                            format!(
-                                "Do you want to approve access to \"{}\"?",
-                                network_approval_context.host
-                            )
-                        }
+                        format_i18n("approval_approve_host", &[("host", &network_approval_context.host)])
                     },
                 ),
             ),
             ApprovalVariant::ApplyPatch { .. } => (
                 patch_options(),
-                localized(
-                    "是否应用以下修改？",
-                    "Would you like to make the following edits?",
-                )
-                .to_string(),
+                t!("approval_apply_edits").to_string(),
             ),
             ApprovalVariant::McpElicitation { server_name, .. } => (
                 elicitation_options(),
-                if crate::i18n::is_chinese() {
-                    format!("{server_name} 需要你的批准。")
-                } else {
-                    format!("{server_name} needs your approval.")
-                },
+                format_i18n("mcp_needs_approval", &[("server_name", server_name)]),
             ),
         };
 
@@ -177,11 +156,11 @@ impl ApprovalOverlay {
 
         let params = SelectionViewParams {
             footer_hint: Some(Line::from(vec![
-                localized("按 ", "Press ").into(),
+                t!("approval_press_confirm").into(),
                 key_hint::plain(KeyCode::Enter).into(),
-                localized(" 确认，或按 ", " to confirm or ").into(),
+                t!("approval_to_confirm").into(),
                 key_hint::plain(KeyCode::Esc).into(),
-                localized(" 取消", " to cancel").into(),
+                t!("approval_to_cancel").into(),
             ])),
             items,
             header,
@@ -381,7 +360,7 @@ impl From<ApprovalRequest> for ApprovalRequestState {
                 let mut header: Vec<Line<'static>> = Vec::new();
                 if let Some(reason) = reason {
                     header.push(Line::from(vec![
-                        localized("原因：", "Reason: ").into(),
+                        t!("approval_reason").into(),
                         reason.italic(),
                     ]));
                     header.push(Line::from(""));
@@ -414,7 +393,7 @@ impl From<ApprovalRequest> for ApprovalRequestState {
                 {
                     header.push(Box::new(
                         Paragraph::new(Line::from_iter([
-                            localized("原因：", "Reason: ").into(),
+                            t!("approval_reason").into(),
                             reason.italic(),
                         ]))
                         .wrap(Wrap { trim: false }),
@@ -434,7 +413,7 @@ impl From<ApprovalRequest> for ApprovalRequestState {
             } => {
                 let header = Paragraph::new(vec![
                     Line::from(vec![
-                        localized("服务器：", "Server: ").into(),
+                        t!("approval_server").into(),
                         server_name.clone().bold(),
                     ]),
                     Line::from(""),
@@ -520,7 +499,7 @@ fn exec_options(
     }
 
     vec![ApprovalOption {
-        label: localized("是，继续", "Yes, proceed").to_string(),
+        label: t!("approval_yes_proceed").to_string(),
         decision: ApprovalDecision::Review(ReviewDecision::Approved),
         display_shortcut: None,
         additional_shortcuts: vec![key_hint::plain(KeyCode::Char('y'))],
@@ -533,11 +512,7 @@ fn exec_options(
         }
 
         Some(ApprovalOption {
-            label: if crate::i18n::is_chinese() {
-                format!("是，并且对此前缀命令不再询问：`{rendered_prefix}`")
-            } else {
-                format!("Yes, and don't ask again for commands that start with `{rendered_prefix}`")
-            },
+            label: format_i18n("approval_yes_dont_ask_prefix", &[("prefix", &rendered_prefix)]),
             decision: ApprovalDecision::Review(ReviewDecision::ApprovedExecpolicyAmendment {
                 proposed_execpolicy_amendment: prefix,
             }),
@@ -546,11 +521,7 @@ fn exec_options(
         })
     }))
     .chain([ApprovalOption {
-        label: localized(
-            "否，并告诉 Codex 需要如何调整",
-            "No, and tell Codex what to do differently",
-        )
-        .to_string(),
+        label: t!("approval_no_tell_codex").to_string(),
         decision: ApprovalDecision::Review(ReviewDecision::Abort),
         display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
         additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
@@ -561,27 +532,19 @@ fn exec_options(
 fn patch_options() -> Vec<ApprovalOption> {
     vec![
         ApprovalOption {
-            label: localized("是，继续", "Yes, proceed").to_string(),
+            label: t!("approval_yes_proceed").to_string(),
             decision: ApprovalDecision::Review(ReviewDecision::Approved),
             display_shortcut: None,
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('y'))],
         },
         ApprovalOption {
-            label: localized(
-                "是，并且对这些文件不再询问",
-                "Yes, and don't ask again for these files",
-            )
-            .to_string(),
+            label: t!("patch_yes_dont_ask_files").to_string(),
             decision: ApprovalDecision::Review(ReviewDecision::ApprovedForSession),
             display_shortcut: None,
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('a'))],
         },
         ApprovalOption {
-            label: localized(
-                "否，并告诉 Codex 需要如何调整",
-                "No, and tell Codex what to do differently",
-            )
-            .to_string(),
+            label: t!("approval_no_tell_codex").to_string(),
             decision: ApprovalDecision::Review(ReviewDecision::Abort),
             display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
@@ -592,19 +555,19 @@ fn patch_options() -> Vec<ApprovalOption> {
 fn elicitation_options() -> Vec<ApprovalOption> {
     vec![
         ApprovalOption {
-            label: localized("是，提供所需信息", "Yes, provide the requested info").to_string(),
+            label: t!("approval_yes_provide_info").to_string(),
             decision: ApprovalDecision::McpElicitation(ElicitationAction::Accept),
             display_shortcut: None,
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('y'))],
         },
         ApprovalOption {
-            label: localized("否，但继续执行", "No, but continue without it").to_string(),
+            label: t!("approval_no_continue_without").to_string(),
             decision: ApprovalDecision::McpElicitation(ElicitationAction::Decline),
             display_shortcut: None,
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('n'))],
         },
         ApprovalOption {
-            label: localized("取消本次请求", "Cancel this request").to_string(),
+            label: t!("approval_cancel_request").to_string(),
             decision: ApprovalDecision::McpElicitation(ElicitationAction::Cancel),
             display_shortcut: Some(key_hint::plain(KeyCode::Esc)),
             additional_shortcuts: vec![key_hint::plain(KeyCode::Char('c'))],

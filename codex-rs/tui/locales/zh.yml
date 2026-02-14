@@ -49,3 +49,114 @@ tooltip_paid_non_mac: "*新功能* 2 倍速率限制，有效期至 *4月2日*�
 tooltip_other_mac: "*新功能* 使用 **Codex 应用** 更快构建。运行 'codex app' 或访问 https://chatgpt.com/codex?app-landing-page=true"
 tooltip_other_non_mac: "*新功能* 使用 Codex 更快构建。"
 tooltip_free_go: "*新功能* Codex 在您的计划中免费使用，有效期至 *3月2日* – 让我们一起构建吧。"
+
+# 批准覆盖层
+approval_run_command: "是否执行以下命令？"
+approval_approve_host: "是否允许访问 \"%{host}\"？"
+mcp_needs_approval: "%{server_name} 需要你的批准。"
+approval_press_confirm: "按 "
+approval_to_confirm: " 确认，或按 "
+approval_to_cancel: " 取消"
+approval_apply_edits: "是否应用以下修改？"
+approval_reason: "原因："
+approval_server: "服务器："
+approval_yes_proceed: "是，继续"
+approval_yes_dont_ask_prefix: "是，并且对此前缀命令不再询问：`%{prefix}`"
+approval_no_tell_codex: "否，并告诉 Codex 需要如何调整"
+approval_yes_provide_info: "是，提供所需信息"
+approval_no_continue_without: "否，但继续执行"
+approval_cancel_request: "取消本次请求"
+patch_yes_dont_ask_files: "是，并且对这些文件不再询问"
+approval_press_confirm: "按 "
+approval_to_confirm: " 确认，或按 "
+approval_to_cancel: " 取消"
+
+# 状态指示器
+status_working: "处理中"
+status_loading: "加载中"
+
+# 反馈
+feedback_how_was_this: "这次结果怎么样？"
+feedback_tell_us_more_bad: "请补充说明（结果不理想）"
+feedback_tell_us_more_good: "请补充说明（结果很好）"
+feedback_tell_us_more_bug: "请补充说明（Bug）"
+feedback_tell_us_more_other: "请补充说明（其他）"
+feedback_bug: "bug"
+feedback_bad_result: "结果不理想"
+feedback_good_result: "结果很好"
+feedback_other: "其他"
+feedback_close: "关闭"
+feedback_upload_logs: "上传日志吗？"
+feedback_files_will_be_sent: "将发送以下文件："
+feedback_yes: "是"
+feedback_no: "否"
+feedback_uploaded: "• 反馈已上传。"
+feedback_thanks: " 感谢你的反馈！"
+feedback_failed: "上传反馈失败"
+feedback_disabled: "反馈功能已禁用"
+
+# 技能
+skills_enable_disable: "启用/禁用技能"
+skills_search_placeholder: "输入以搜索技能"
+
+# 实验性功能
+experimental_features: "实验性功能"
+
+# 请求用户输入
+input_submit_answer: "Enter 提交答案"
+input_submit_all: "Enter 提交全部"
+input_interrupt: "Esc 中断"
+input_no_choices: "无可选项"
+input_no_questions: "暂无问题"
+input_no_options: "无可选项"
+
+# 命令
+command_send_saved_prompt: "发送已保存提示词"
+
+# 应用链接
+app_link_manage: "在 ChatGPT 中管理"
+app_link_disable: "禁用应用"
+app_link_enable: "启用应用"
+app_link_back: "返回"
+app_link_install: "在 ChatGPT 中安装"
+app_link_already_installed: "我已经安装好了"
+app_link_finish_setup: "完成应用设置"
+app_link_setup_url: "设置链接："
+app_link_no_actions: "无可用操作"
+
+# 计划实施
+plan_implement_title: "执行这个计划吗？"
+plan_implement_yes: "是，执行这个计划"
+plan_implement_no: "否，继续规划模式"
+plan_implement_message: "请执行这个计划。"
+
+# 用户 shell 命令
+shell_command_help_title: "在命令前加 ! 即可在本地执行"
+shell_command_help_hint: "例如：!ls"
+
+# 速率限制
+rate_limit_weekly: "每周"
+rate_limit_monthly: "每月"
+rate_limit_annual: "每年"
+rate_limit_warning: "注意：你的 %{limit} 额度剩余不足 %{percent}%。可运行 /status 查看详情。"
+
+# WebSocket
+websocket_timing: "WebSocket 耗时：%{label}"
+
+# 线程
+thread_forked_from: "线程分叉自 "
+
+# Git
+status_git_branch: "Git 分支"
+
+# 时间单位
+time_hours: "%{hours}小时"
+
+# 通用操作
+action_yes: "是"
+action_no: "否"
+action_continue: "继续"
+action_cancel: "取消"
+action_back: "返回"
+action_close: "关闭"
+action_quit: "退出"
