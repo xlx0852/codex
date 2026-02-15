@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use crate::diff_render::display_path_for;
-use crate::i18n::localized;
+use crate::i18n::{localized, t};
 use crate::key_hint;
 use crate::text_formatting::truncate_text;
 use crate::tui::FrameRequester;
@@ -56,17 +56,17 @@ pub enum SessionPickerAction {
 }
 
 impl SessionPickerAction {
-    fn title(self) -> &'static str {
+    fn title(self) -> String {
         match self {
-            SessionPickerAction::Resume => localized("继续之前的会话", "Resume a previous session"),
-            SessionPickerAction::Fork => localized("分叉之前的会话", "Fork a previous session"),
+            SessionPickerAction::Resume => t!("resume_previous_session").to_string(),
+            SessionPickerAction::Fork => t!("fork_previous_session").to_string(),
         }
     }
 
-    fn action_label(self) -> &'static str {
+    fn action_label(self) -> String {
         match self {
-            SessionPickerAction::Resume => localized("继续", "resume"),
-            SessionPickerAction::Fork => localized("分叉", "fork"),
+            SessionPickerAction::Resume => t!("action_resume").to_string(),
+            SessionPickerAction::Fork => t!("action_fork").to_string(),
         }
     }
 
@@ -221,10 +221,10 @@ async fn run_session_picker(
 }
 
 /// Returns the human-readable column header for the given sort key.
-fn sort_key_label(sort_key: ThreadSortKey) -> &'static str {
+fn sort_key_label(sort_key: ThreadSortKey) -> String {
     match sort_key {
-        ThreadSortKey::CreatedAt => localized("创建时间", "Created at"),
-        ThreadSortKey::UpdatedAt => localized("更新时间", "Updated at"),
+        ThreadSortKey::CreatedAt => t!("sort_created_at").to_string(),
+        ThreadSortKey::UpdatedAt => t!("sort_updated_at").to_string(),
     }
 }
 
